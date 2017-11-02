@@ -1,45 +1,43 @@
-from aiohttp import web
-from rx import Observable
 from rx.subjects import Subject
 
 from collections import OrderedDict
 
 from driver.http_driver import http_driver
 from driver.console_driver import console_driver
+from driver.deepspeech_driver import deepspeech_driver
 
 def main(sources):
-    '''
-    async def handle(request):
-        name = request.match_info.get('name', "Anonymous")
-        text = "Hello, " + name
-        return web.Response(text=text)
+    stt = sources["HTTP"]["add_route"]("POST", "/stt")
+    text = sources["DEEPSPEECH"]["text"]().share()
 
-    app = web.Application()
-    setup_routes(app)
-# app.router.add_get('/', handle)
-# app.router.add_get('/{name}', handle)
+    http_response = text.map(lambda i: { "data": i["text"], "context": i["context"] })
+    console = text.map(lambda i: i["text"])
 
-    web.run_app(app, host='127.0.0.1', port=8000)
-    '''
-    console = sources["HTTP"]["add_route"]("GET", "/stt")
     return OrderedDict([
-        ("CONSOLE", console)
+        ("CONSOLE", console),
+        ("DEEPSPEECH", stt),
+        ("HTTP", http_response),
     ])
 
 
 if __name__ == '__main__':
 
-#   http_proxy = Subject()
+    http_proxy = Subject()
     console_proxy = Subject()
+    deepspeech_proxy = Subject()
 
     sources = OrderedDict([
-        ("HTTP", http_driver()),
-        ("CONSOLE", console_driver(console_proxy))        
+        ("DEEPSPEECH", deepspeech_driver(deepspeech_proxy)),
+        ("HTTP", http_driver(http_proxy)),
+        ("CONSOLE", console_driver(console_proxy)),
     ])
 
 
     sinks = main(sources)
 
-    sinks["CONSOLE"].subscribe()
+    sinks["CONSOLE"].subscribe(console_proxy)
+    sinks["DEEPSPEECH"].subscribe(deepspeech_proxy)
+    sinks["HTTP"].subscribe(http_proxy)
+
     sources["HTTP"]["run"]()
     print("bar")
