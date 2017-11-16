@@ -7,7 +7,7 @@ You need an environment with DeepSpeech and a model to run this server.
 
     python setup.py install
 
-## Usage
+## Starting the server
 
     deepspeech-server --model [model file] --alphabet [alphabet file]
 
@@ -18,3 +18,10 @@ the "data" directory of the DeepSpeech sources.
 you may need to provide the path to the deepspeech library:
 
     LD_LIBRARY_PATH=$HOME/.local/lib/ deepspeech-server --model [model file] --alphabet [alphabet file]
+
+## Using the server
+
+Inference on the model is done via http post requests. For example with the
+following curl command:
+
+     curl -X POST --data-binary @[myfile.wav] http://localhost:8000/stt
