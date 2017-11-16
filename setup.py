@@ -7,7 +7,7 @@ except ImportError:
     use_setuptools = False
 
 try:
-    with open('readme.md', 'rt') as readme:
+    with open('README.md', 'rt') as readme:
         description = '\n' + readme.read()
 except IOError:
     # maybe running setup.py from some other dir
@@ -19,8 +19,8 @@ install_requires = [
 setup(
     name="mozilla deepspeech server",
     version='0.1.0',
-    url='git@gitlabinternal.softathome.com:sah_datalab/deepspeech-server-py.git',
-    license='SAH',
+    url='https://github.com/MainRo/deepspeech-server.git',
+    license='MPL-2.0',
     description="deepspeech server",
     long_description=description,
     author='Romain Picard',
