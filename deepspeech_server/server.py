@@ -3,13 +3,13 @@ from rx.subjects import Subject
 
 from collections import OrderedDict
 
-from driver.http_driver import http_driver
-from driver.console_driver import console_driver
-from driver.deepspeech_driver import deepspeech_driver
-from driver.arg_driver import arg_driver
+from deepspeech_server.driver.http_driver import http_driver
+from deepspeech_server.driver.console_driver import console_driver
+from deepspeech_server.driver.deepspeech_driver import deepspeech_driver
+from deepspeech_server.driver.arg_driver import arg_driver
 
 
-def main(sources):
+def daemon_main(sources):
     arg_values = sources["ARG"]["arguments"]()
     stt = sources["HTTP"]["add_route"]("POST", "/stt")
     text = sources["DEEPSPEECH"]["text"]().share()
@@ -37,9 +37,7 @@ def main(sources):
         ("HTTP", http_response),
     ])
 
-
-if __name__ == '__main__':
-
+def main():
     # todo: create a cycle runner
     arg_proxy = Subject()
     http_proxy = Subject()
@@ -53,7 +51,7 @@ if __name__ == '__main__':
         ("CONSOLE", console_driver(console_proxy)),
     ])
 
-    sinks = main(sources)
+    sinks = daemon_main(sources)
 
     sinks["CONSOLE"].subscribe(console_proxy)
     sinks["DEEPSPEECH"].subscribe(deepspeech_proxy)
@@ -61,4 +59,7 @@ if __name__ == '__main__':
     sinks["ARG"].subscribe(arg_proxy)
 
     sources["HTTP"]["run"]()
-    print("bar")
+
+
+if __name__ == '__main__':
+    main()
