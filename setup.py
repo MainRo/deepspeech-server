@@ -14,11 +14,14 @@ except IOError:
     description = ''
 
 install_requires = [
+    'rx>=1.6',
+    'aiohttp>=2.3',
+    'scipy>=1.0'
 ]
 
 setup(
     name="mozilla deepspeech server",
-    version='0.1.0',
+    version='0.2.0',
     url='https://github.com/MainRo/deepspeech-server.git',
     license='MPL-2.0',
     description="deepspeech server",
