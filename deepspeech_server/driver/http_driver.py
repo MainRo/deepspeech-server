@@ -42,5 +42,5 @@ def http_driver(sink):
 
     return {
         "add_route": add_route,
-        "run": lambda: web.run_app(app, host='127.0.0.1', port=8000)
+        "run": lambda: web.run_app(app, host='0.0.0.0', port=8000)
     }
