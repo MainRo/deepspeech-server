@@ -34,7 +34,7 @@ setup(
     platforms='any',
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'License :: SAH',
+        'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3',
         'Topic :: Scientific/Engineering :: Artificial Intelligence'
