@@ -4,6 +4,14 @@ import scipy.io.wavfile as wav
 from rx import Observable
 from deepspeech.model import Model
 
+# Number of MFCC features to use
+N_FEATURES = 26
+
+# Size of the context window used for producing timesteps in the input vector
+N_CONTEXT = 9
+
+# Beam width used in the CTC decoder when building candidate transcriptions
+BEAM_WIDTH = 500
 
 def deepspeech_driver(sink):
     ds_model = None
@@ -22,7 +30,7 @@ def deepspeech_driver(sink):
     def setup_model(model_path, alphabet):
         if model_path is not None and alphabet is not None:
             print("creating model {} {}".format(model_path, alphabet))
-            return Model(model_path, 26, 9, alphabet)
+            return Model(model_path, N_FEATURES, N_CONTEXT, alphabet, BEAM_WIDTH)
         return None
 
     def on_deepspeech_request(item):
