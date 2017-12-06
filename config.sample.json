@@ -1,0 +1,6 @@
+{
+  "deepspeech": {
+    "model" :"model.pb",
+    "alphabet": "alphabet.txt"
+  }
+}

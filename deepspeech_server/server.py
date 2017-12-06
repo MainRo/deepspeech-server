@@ -1,29 +1,54 @@
+import json
 from rx import Observable
 from rx.subjects import Subject
 
 from collections import OrderedDict
 
+from deepspeech_server.driver.file_reader_driver import file_reader_driver
 from deepspeech_server.driver.http_driver import http_driver
 from deepspeech_server.driver.console_driver import console_driver
 from deepspeech_server.driver.deepspeech_driver import deepspeech_driver
 from deepspeech_server.driver.arg_driver import arg_driver
 
+def parse_config(config_data):
+    ''' takes a stream with the content of the configuration file as input
+    and returns stream with arguments (hot).
+
+    deepspeech arguments: ds_conf_model, ds_conf_alphabet, ds_conf_trie, ds_conf_lm
+    '''
+    def json_to_args(config):
+        return Observable.from_([
+            {"what": "ds_conf_model", "value": config["deepspeech"]["model"]},
+            {"what": "ds_conf_alphabet", "value": config["deepspeech"]["alphabet"]},
+        ])
+
+    config = config_data \
+        .filter(lambda i: i["name"] == "config") \
+        .map(lambda i: json.loads(i["data"])) \
+        .flat_map(json_to_args)
+
+    return config.share()
 
 def daemon_main(sources):
-    arg_values = sources["ARG"]["arguments"]()
+    args = sources["ARG"]["arguments"]()
     stt = sources["HTTP"]["add_route"]("POST", "/stt")
     text = sources["DEEPSPEECH"]["text"]().share()
+    config_data = sources["FILE"]["data"]("config")
 
-    arg = Observable.from_([
-        {"what": "argument", "arg_name": "model", "arg_help": "Path of the deepspeech model to use"},
-        {"what": "argument", "arg_name": "alphabet", "arg_help": "Path of the alphabet file to use"}
+    arg_specs = Observable.from_([
+        {"what": "argument", "arg_name": "config", "arg_help": "Path of the server configuration file"},
     ])
 
+    config_file = args \
+        .do_action(lambda i: print(repr(i))) \
+        .filter(lambda i: i["name"] == "config") \
+        .map(lambda i: {"name": "config", "path": i["value"]})
+    config = parse_config(config_data)
+    
     ds_stt = stt \
         .map(lambda i: {"what": "stt", "data": i["data"], "context": i["context"]})
-    ds_arg = arg_values \
-        .filter(lambda i: i["name"] == "model" or i["name"] == "alphabet") \
-        .map(lambda i: {"what": i["name"], "value": i["value"]})
+    ds_arg = config \
+        .filter(lambda i: i["what"] in ["ds_conf_model", "ds_conf_alphabet"])
     ds = ds_stt.merge(ds_arg)
 
     http_response = text \
@@ -31,7 +56,8 @@ def daemon_main(sources):
     console = text.map(lambda i: i["text"])
 
     return OrderedDict([
-        ("ARG", arg),
+        ("ARG", arg_specs),
+        ("FILE", config_file),
         ("CONSOLE", console),
         ("DEEPSPEECH", ds),
         ("HTTP", http_response),
@@ -40,12 +66,14 @@ def daemon_main(sources):
 def main():
     # todo: create a cycle runner
     arg_proxy = Subject()
+    file_proxy = Subject()
     http_proxy = Subject()
     console_proxy = Subject()
     deepspeech_proxy = Subject()
 
     sources = OrderedDict([
         ("ARG", arg_driver(arg_proxy)),
+        ("FILE", file_reader_driver(file_proxy)),
         ("DEEPSPEECH", deepspeech_driver(deepspeech_proxy)),
         ("HTTP", http_driver(http_proxy)),
         ("CONSOLE", console_driver(console_proxy)),
@@ -56,6 +84,7 @@ def main():
     sinks["CONSOLE"].subscribe(console_proxy)
     sinks["DEEPSPEECH"].subscribe(deepspeech_proxy)
     sinks["HTTP"].subscribe(http_proxy)
+    sinks["FILE"].subscribe(file_proxy)
     sinks["ARG"].subscribe(arg_proxy)
 
     sources["HTTP"]["run"]()

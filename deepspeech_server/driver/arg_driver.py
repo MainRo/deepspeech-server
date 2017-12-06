@@ -11,7 +11,7 @@ def arg_driver(sink):
             nonlocal argument_observer
             argument_observer=o
 
-        return Observable.create(on_subscribe)
+        return Observable.create(on_subscribe).share()
 
     def on_item(parser, item):
         if item["what"] == "argument":

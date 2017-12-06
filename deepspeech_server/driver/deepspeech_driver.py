@@ -40,17 +40,19 @@ def deepspeech_driver(sink):
         nonlocal alphabet_path
 
         if item["what"] == "stt":
-            fs, audio = wav.read(io.BytesIO(item["data"]))
-    #       convert to mono. todo: move to a component or just a function here
-            if len(audio.shape) > 1:
-                audio = audio[:,0]
-            text_observer.on_next({ "what": "text", "text": ds_model.stt(audio, fs), "context": item["context"]})
+            if ds_model is not None:
+                fs, audio = wav.read(io.BytesIO(item["data"]))
+        #       convert to mono. todo: move to a component or just a function here
+                if len(audio.shape) > 1:
+                    audio = audio[:,0]
+                text_observer.on_next({ "what": "text", "text": ds_model.stt(audio, fs), "context": item["context"]})
+            # todo: send error
 
-        elif item["what"] == "model":
+        elif item["what"] == "ds_conf_model":
             model_path = item["value"]
             ds_model = setup_model(model_path, alphabet_path)
 
-        elif item["what"] == "alphabet":
+        elif item["what"] == "ds_conf_alphabet":
             alphabet_path = item["value"]
             ds_model = setup_model(model_path, alphabet_path)
 
