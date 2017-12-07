@@ -23,7 +23,6 @@ def arg_driver(sink):
         args = parser.parse_args()
         if argument_observer != None:
             for key,value in vars(args).items():
-                print("arg {} value is {}".format(key, str(value)))
                 argument_observer.on_next({"name": key, "value": value})
         return
 
