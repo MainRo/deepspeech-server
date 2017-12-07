@@ -1,6 +1,8 @@
 {
   "deepspeech": {
     "model" :"model.pb",
-    "alphabet": "alphabet.txt"
+    "alphabet": "alphabet.txt",
+    "lm": "lm.binary",
+    "trie": "trie"
   }
 }

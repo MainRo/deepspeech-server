@@ -17,17 +17,20 @@ def parse_config(config_data):
     deepspeech arguments: ds_conf_model, ds_conf_alphabet, ds_conf_trie, ds_conf_lm
     '''
     def json_to_args(config):
-        return Observable.from_([
-            {"what": "ds_conf_model", "value": config["deepspeech"]["model"]},
-            {"what": "ds_conf_alphabet", "value": config["deepspeech"]["alphabet"]},
-        ])
+        args = []
+        for arg in ["model", "alphabet", "lm", "trie"]:
+            if arg in config["deepspeech"]:
+                args.append({"what": "ds_conf_" + arg, "value": config["deepspeech"][arg]})
+
+        args.append({"what": "conf_complete"})
+        return Observable.from_(args)
 
     config = config_data \
         .filter(lambda i: i["name"] == "config") \
         .map(lambda i: json.loads(i["data"])) \
         .flat_map(json_to_args)
 
-    return config.share()
+    return config
 
 def daemon_main(sources):
     args = sources["ARG"]["arguments"]()
@@ -44,11 +47,14 @@ def daemon_main(sources):
         .filter(lambda i: i["name"] == "config") \
         .map(lambda i: {"name": "config", "path": i["value"]})
     config = parse_config(config_data)
-    
+
     ds_stt = stt \
         .map(lambda i: {"what": "stt", "data": i["data"], "context": i["context"]})
     ds_arg = config \
-        .filter(lambda i: i["what"] in ["ds_conf_model", "ds_conf_alphabet"])
+        .filter(lambda i: i["what"] in [
+            "ds_conf_model", "ds_conf_alphabet",
+            "ds_conf_trie", "ds_conf_lm",
+            "conf_complete"])
     ds = ds_stt.merge(ds_arg)
 
     http_response = text \
