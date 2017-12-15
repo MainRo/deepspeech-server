@@ -22,6 +22,7 @@ The server is also available on pypi, so you can install it with pip:
 
     pip3 install deepspeech-server
 
+Note that python 3.5 is the minimum version required to run the server.
 
 ## Starting the server
 

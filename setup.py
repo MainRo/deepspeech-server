@@ -13,6 +13,7 @@ except IOError:
     # maybe running setup.py from some other dir
     description = ''
 
+python_requires='>=3.5'
 install_requires = [
     'rx>=1.6',
     'aiohttp>=2.3',
