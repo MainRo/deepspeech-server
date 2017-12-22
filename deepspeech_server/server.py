@@ -10,17 +10,32 @@ from deepspeech_server.driver.console_driver import console_driver
 from deepspeech_server.driver.deepspeech_driver import deepspeech_driver
 from deepspeech_server.driver.arg_driver import arg_driver
 
+
 def parse_config(config_data):
     ''' takes a stream with the content of the configuration file as input
-    and returns stream with arguments (hot).
+    and returns a (hot) stream of arguments .
 
     deepspeech arguments: ds_conf_model, ds_conf_alphabet, ds_conf_trie, ds_conf_lm
+    http server arguments: request_max_size
     '''
     def json_to_args(config):
         args = []
-        for arg in ["model", "alphabet", "lm", "trie"]:
-            if arg in config["deepspeech"]:
-                args.append({"what": "ds_conf_" + arg, "value": config["deepspeech"][arg]})
+        if "deepspeech" in config:
+            for arg in ["model", "alphabet", "lm", "trie"]:
+                if arg in config["deepspeech"]:
+                    args.append({
+                        "what": "ds_conf_" + arg,
+                        "value": config["deepspeech"][arg]
+                    })
+
+        if "server" in config:
+            if "http" in config["server"]:
+                for arg in ["request_max_size"]:
+                    if arg in config["server"]["http"]:
+                        args.append({
+                            "what": "srv_http_conf_" + arg,
+                            "value": config["server"]["http"][arg]
+                        })
 
         args.append({"what": "conf_complete"})
         return Observable.from_(args)
@@ -30,11 +45,12 @@ def parse_config(config_data):
         .map(lambda i: json.loads(i["data"])) \
         .flat_map(json_to_args)
 
-    return config
+    return config.share()
+
 
 def daemon_main(sources):
     args = sources["ARG"]["arguments"]()
-    stt = sources["HTTP"]["add_route"]("POST", "/stt")
+    stt = sources["HTTP"]["request"]()
     text = sources["DEEPSPEECH"]["text"]().share()
     config_data = sources["FILE"]["data"]("config")
 
@@ -43,7 +59,6 @@ def daemon_main(sources):
     ])
 
     config_file = args \
-        .do_action(lambda i: print(repr(i))) \
         .filter(lambda i: i["name"] == "config") \
         .map(lambda i: {"name": "config", "path": i["value"]})
     config = parse_config(config_data)
@@ -57,8 +72,18 @@ def daemon_main(sources):
             "conf_complete"])
     ds = ds_stt.merge(ds_arg)
 
+    http_arg = config \
+        .filter(lambda i: i["what"] in [
+            "srv_http_conf_request_max_size",
+            "conf_complete"])
     http_response = text \
-        .map(lambda i: {"data": i["text"], "context": i["context"]})
+        .map(lambda i: {"what": "response", "data": i["text"], "context": i["context"]})
+    http_stt_route = Observable.from_([
+        {"what": "add_route", "type": "POST", "path": "/stt"}
+    ])
+    http_init = Observable.concat([http_arg, http_stt_route])
+    http = http_response.merge(http_init)
+
     console = text.map(lambda i: i["text"])
 
     return OrderedDict([
@@ -66,7 +91,7 @@ def daemon_main(sources):
         ("FILE", config_file),
         ("CONSOLE", console),
         ("DEEPSPEECH", ds),
-        ("HTTP", http_response),
+        ("HTTP", http),
     ])
 
 def main():

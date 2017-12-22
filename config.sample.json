@@ -4,5 +4,10 @@
     "alphabet": "alphabet.txt",
     "lm": "lm.binary",
     "trie": "trie"
+  },
+  "server": {
+    "http": {
+      "request_max_size": 1048576
+    }
   }
 }

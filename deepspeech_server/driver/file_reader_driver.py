@@ -9,6 +9,10 @@ def file_reader_driver(sink):
     stream.
     warning: implementation is synchronous.
 
+    @todo : This driver should return a stream of streams so that the content
+    of each file end with a stream completion. For now each "data" stream ends
+    once the first file content is read.
+
     sink stream structure:
     - name: identifier of the file
     - path: path of the file to read
@@ -28,12 +32,12 @@ def file_reader_driver(sink):
         return data_observable
 
     def on_sink_item(i):
-        print("config file: {}, {}".format(i["name"], i["path"]))
         nonlocal data_observer
         if i["name"] in data_observer:
             with open(i["path"], 'r') as content_file:
                 content = content_file.read()
                 data_observer[i["name"]].on_next({"name": i["name"], "data": content})
+                data_observer[i["name"]].on_completed()
 
 
     sink.subscribe(on_sink_item)
