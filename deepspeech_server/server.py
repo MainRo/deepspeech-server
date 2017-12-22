@@ -30,7 +30,7 @@ def parse_config(config_data):
 
         if "server" in config:
             if "http" in config["server"]:
-                for arg in ["request_max_size"]:
+                for arg in ["request_max_size", "host", "port"]:
                     if arg in config["server"]["http"]:
                         args.append({
                             "what": "srv_http_conf_" + arg,
@@ -75,6 +75,8 @@ def daemon_main(sources):
     http_arg = config \
         .filter(lambda i: i["what"] in [
             "srv_http_conf_request_max_size",
+            "srv_http_conf_host",
+            "srv_http_conf_port",
             "conf_complete"])
     http_response = text \
         .map(lambda i: {"what": "response", "data": i["text"], "context": i["context"]})

@@ -7,6 +7,7 @@ from aiohttp import web
 
 def http_driver(sink):
     app_args = {}
+    run_args = {}
     app = None
     request_observer = None
 
@@ -30,14 +31,20 @@ def http_driver(sink):
         return Observable.create(on_request_subscribe)
 
     def on_sink_item(i):
-        nonlocal app, app_args
+        nonlocal app
         if i["what"] == "response":
             (request, response) = i["context"]
             response.write(bytearray(i["data"], 'utf8'))
+
         elif i["what"] == "srv_http_conf_request_max_size":
             app_args["client_max_size"] = i["value"]
+        elif i["what"] == "srv_http_conf_port":
+            run_args["port"] = i["value"]
+        elif i["what"] == "srv_http_conf_host":
+            run_args["host"] = i["value"]
         elif i["what"] == "conf_complete":
             app = web.Application(**app_args)
+
         elif i["what"] == "add_route":
             add_route(i["type"], i["path"])
         else:
@@ -47,5 +54,5 @@ def http_driver(sink):
 
     return {
         "request": create_request_observable,
-        "run": lambda: web.run_app(app, host='0.0.0.0', port=8000)
+        "run": lambda: web.run_app(app, **run_args)
     }

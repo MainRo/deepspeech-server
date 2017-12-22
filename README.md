@@ -74,6 +74,10 @@ __request_max_size__ (default value: 1048576, i.e. 1MiB) is the maximum payload
 size allowed by the server. A received payload size above this threshold will
 return a "413: Request Entity Too Large" error.
 
+__host__  (default value: "0.0.0.0") is the listen address of the http server.
+
+__port__ (default value: 8080) is the listening port of the http server.
+
 
 ## Using the server
 
