@@ -1,5 +1,6 @@
 import os
 import json
+import asyncio
 from rx import Observable
 
 from aiohttp import web
@@ -13,11 +14,26 @@ def http_driver(sink):
 
     def add_route(type, path):
         async def on_post_data(request, path):
+            ''' TODO: Handle errors. This could be done by making the request
+            observable a stream of streams. Each request would be an Observable
+            that carries zero or on item with the result payload, and either
+            completes or fails. The stream completion would then complete the
+            future.
+            '''
+            nonlocal request_observer
             data = await request.read()
+            response_future = asyncio.Future()
+            request_observer.on_next({
+                "what": "data",
+                "path": path,
+                "data": data,
+                "context": response_future
+            })
+            await response_future
+
             response = web.StreamResponse(status=200, reason=None)
             await response.prepare(request)
-            nonlocal request_observer
-            request_observer.on_next({ "what": "data", "path": path, "data": data, "context": (request, response)})
+            await response.write(bytearray(response_future.result(), 'utf8'))
             return response
 
         if(type == "POST"):
@@ -33,8 +49,8 @@ def http_driver(sink):
     def on_sink_item(i):
         nonlocal app
         if i["what"] == "response":
-            (request, response) = i["context"]
-            response.write(bytearray(i["data"], 'utf8'))
+            response_future = i["context"]
+            response_future.set_result(i["data"])
 
         elif i["what"] == "srv_http_conf_request_max_size":
             app_args["client_max_size"] = i["value"]
