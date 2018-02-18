@@ -3,4 +3,5 @@ build
 dist
 *.egg-info
 .tox
+.ropeproject
 config.json
