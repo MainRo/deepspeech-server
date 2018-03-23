@@ -1,9 +1,9 @@
 {
   "deepspeech": {
-    "model" :"model.pb",
-    "alphabet": "alphabet.txt",
-    "lm": "lm.binary",
-    "trie": "trie"
+    "model" :"models/output_graph.pb",
+    "alphabet": "models/alphabet.txt",
+    "lm": "models/lm.binary",
+    "trie": "models/trie"
   },
   "server": {
     "http": {

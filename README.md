@@ -30,9 +30,15 @@ Note that python 3.5 is the minimum version required to run the server.
 
 You can use deepspeech without training a model yourself. Pre-trained
 models are provided by Mozilla in the release page of the project (See the
-download section at the bottom):
+assets section of the release not):
 
 https://github.com/mozilla/DeepSpeech/releases
+
+Once your downloaded a pre-trained model, you can untar it and directly use the
+sample configuration file:
+
+    cp config.sample.json config.json
+    deepspeech-server --config config.json
 
 ### Server configuration
 
@@ -41,10 +47,10 @@ Its structure is the following one:
 
     {
       "deepspeech": {
-        "model" :"model.pb",
-        "alphabet": "alphabet.txt",
-        "lm": "lm.binary",
-        "trie": "trie"
+        "model" :"models/output_graph.pb",
+        "alphabet": "models/alphabet.txt",
+        "lm": "models/lm.binary",
+        "trie": "models/trie"
       },
       "server": {
         "http": {
@@ -84,4 +90,4 @@ __port__ (default value: 8080) is the listening port of the http server.
 Inference on the model is done via http post requests. For example with the
 following curl command:
 
-     curl -X POST --data-binary @[myfile.wav] http://localhost:8000/stt
+     curl -X POST --data-binary @testfile.wav http://localhost:8080/stt
