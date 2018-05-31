@@ -1,0 +1,10 @@
+language: python
+python:
+  - '3.5'
+deploy:
+  provider: pypi
+  user: mainro
+  password:
+    secure: Ye9CbAw/trk/0SPJbG+d1Fktu7zKGiWzNNxAs6dEBO+62GU5Fi8m3Tdm0R6Jel81gjPsV59XqGukkYfBToKJSs+hGGsSrW0DjAmJJNEqOIa0yF835fAC/WAjqL+IvC6P1Y0Bqb4aV6JLWoLgAiM10cudATCiGH6hkt/JoXietDRorvfujvUxgqacAvcrHGiJC40VJTGdcgR/Ne4CcoXTeoes6YoIissFgqRsjgv3/YuvySnmcyiFIGnGEX6o3wWtmTbNfDWU7yGpnO3SHsnXmsKCvzoiPPwuLpT+mSmQfI0zfBEJ+b4C/CN/ZtJRX404wWAhntVbjpiqs9TH3ZQZXA82AA1Sw6zoWo5gi07IomhElyP1ZaFfrQqM+itzyFB6e1O5JBml8ptq7GF0s03IlK9sMNTbnW9DqK2YSXKLllOn3WbaPigt/PRtPbyYod7uKpGgGfJtsl1UoyEi/AyzzB3oeH1ktC1jKF3L5mzd5yxapwAgpIC9usuq0882QGy+JdF4xaaUb/WYLQMQp0RTcd3erJazN7hFVc/pBWn7RwnVlko7LyjiTeHMKnUnR+xzUU3iYL2Rz4Xm6KF8cqmg7lRe9W1beA7Tj/2QFkpRm3N8XIsCt3XMJMLCTGBHyfvXnhmSxLglK5tO1lrs2LWJ2fi4MeLmR/NptqBGHAICS/o=
+  on:
+    tags: true
