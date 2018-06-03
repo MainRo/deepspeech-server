@@ -7,7 +7,7 @@ except ImportError:
     use_setuptools = False
 
 try:
-    with open('README.md', 'rt') as readme:
+    with open('README.rst', 'rt') as readme:
         description = '\n' + readme.read()
 except IOError:
     # maybe running setup.py from some other dir
