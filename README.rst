@@ -21,21 +21,25 @@ You first need to install deepspeech. Depending on your system you can use the
 CPU package:
 
 .. code-block:: console
+
     pip3 install deepspeech
 
 Or the GPU package:
 
 .. code-block:: console
+
     pip3 install deepspeech-gpu
 
 Then you can install the deepspeech server:
 
 .. code-block:: console
+
     python3 setup.py install
 
 The server is also available on pypi, so you can install it with pip:
 
 .. code-block:: console
+
     pip3 install deepspeech-server
 
 Note that python 3.5 is the minimum version required to run the server.
@@ -44,6 +48,7 @@ Starting the server
 ====================
 
 .. code-block:: console
+
     deepspeech-server --config config.json
 
 You can use deepspeech without training a model yourself. Pre-trained
@@ -56,6 +61,7 @@ Once your downloaded a pre-trained model, you can untar it and directly use the
 sample configuration file:
 
 .. code-block:: console
+
     cp config.sample.json config.json
     deepspeech-server --config config.json
 
@@ -66,6 +72,7 @@ The configuration is done with a json file, provided with the "--config" argumen
 Its structure is the following one:
 
 .. code-block:: json
+
     {
       "deepspeech": {
         "model" :"models/output_graph.pb",
@@ -117,4 +124,5 @@ Inference on the model is done via http post requests. For example with the
 following curl command:
 
 .. code-block:: console
+
      curl -X POST --data-binary @testfile.wav http://localhost:8080/stt
