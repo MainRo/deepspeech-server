@@ -1,3 +1,4 @@
 rx>=1.6
-aiohttp>=2.3
 scipy>=1.0
+cyclotron-aio>=0.4'
+cyclotron-std>=0.2'

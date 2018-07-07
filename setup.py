@@ -16,13 +16,14 @@ except IOError:
 python_requires='>=3.5'
 install_requires = [
     'rx>=1.6',
-    'aiohttp>=2.3',
-    'scipy>=1.0'
+    'scipy>=1.0',
+    'cyclotron-aio>=0.4',
+    'cyclotron-std>=0.2',
 ]
 
 setup(
     name="deepspeech-server",
-    version='0.4.1',
+    version='0.5.0',
     url='https://github.com/MainRo/deepspeech-server.git',
     license='MPL-2.0',
     description="server for mozilla deepspeech",
