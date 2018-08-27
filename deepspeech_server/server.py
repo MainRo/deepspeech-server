@@ -50,12 +50,12 @@ def deepspeech_server(sources):
     http_ds_error, route_ds_error = make_error_router()
 
     args = argparse.argparse(
-        Observable.just(argparse.Parser(description="deepspeech server")),
-        Observable.from_([
-            argparse.AddArgument(
+        argv=argv.skip(1),
+        parser=Observable.just(argparse.Parser(description="deepspeech server")),
+        arguments=Observable.from_([
+            argparse.ArgumentDef(
                 name='--config', help="Path of the server configuration file")
-        ]),
-        argv.skip(1)
+        ])
     )
 
     config_file = (
