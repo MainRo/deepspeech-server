@@ -3,6 +3,8 @@ from collections import namedtuple
 from rx import Observable
 
 from cyclotron import Component
+from cyclotron.router import make_error_router
+
 from cyclotron_aio.runner import run
 import cyclotron_aio.httpd as httpd
 import cyclotron_std.sys.argv as argv
@@ -42,8 +44,10 @@ def parse_config(config_data):
 def deepspeech_server(sources):
     argv = sources.argv.argv
     stt = sources.httpd.route
-    text = sources.deepspeech.text.share()
+    stt_response = sources.deepspeech.text.share()
     config_data = sources.file.response
+
+    http_ds_error, route_ds_error = make_error_router()
 
     args = argparse.argparse(
         Observable.just(argparse.Parser(description="deepspeech server")),
@@ -93,16 +97,22 @@ def deepspeech_server(sources):
     )
 
     http_response = (
-        text
+        stt_response
+        .let(route_ds_error,
+            error_map=lambda e: httpd.Response(
+                data="Speech to text error".encode('utf-8'),
+                context=e.args[0].context,
+                status=500
+        ))
         .map(lambda i: httpd.Response(
             data=i.text.encode('utf-8'),
             context=i.context,
         ))
     )
 
-    http = http_response.merge(http_init)
+    http = Observable.merge(http_init, http_response, http_ds_error)
 
-    console = text.map(lambda i: i.text)
+    console = Observable.empty()
 
     return DeepspeechSink(
         file=file.Sink(request=config_file),

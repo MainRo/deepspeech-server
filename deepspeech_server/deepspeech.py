@@ -2,7 +2,7 @@ import io
 from collections import namedtuple
 import scipy.io.wavfile as wav
 
-from rx import AnonymousObservable
+from rx import Observable
 from cyclotron import Component
 from deepspeech.model import Model
 
@@ -36,6 +36,7 @@ SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
 
 # Sourc eevents
 TextResult = namedtuple('TextResult', ['text', 'context'])
+TextError = namedtuple('TextError', ['error', 'context'])
 
 
 def make_driver(loop=None):
@@ -68,12 +69,15 @@ def make_driver(loop=None):
                             if len(audio.shape) > 1:
                                 audio = audio[:, 0]
                             text = ds_model.stt(audio, fs)
-                            observer.on_next(TextResult(
+                            observer.on_next(Observable.just(TextResult(
                                 text=text,
                                 context=item.context,
-                            ))
+                            )))
                         except Exception as e:
-                            print('error, we will notify a stream error soon')
+                            observer.on_next(Observable.throw(TextError(
+                                error=e,
+                                context=item.context,
+                            )))
                 elif type(item) is Initialize:
                     ds_model = setup_model(
                         item.model, item.alphabet, item.lm, item.trie)
@@ -84,7 +88,7 @@ def make_driver(loop=None):
             sink.speech.subscribe(lambda item: on_deepspeech_request(item))
 
         return Source(
-            text=AnonymousObservable(subscribe)
+            text=Observable.create(subscribe)
         )
 
     return Component(call=driver, input=Sink)
