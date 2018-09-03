@@ -11,5 +11,10 @@
       "port": 8080,
       "request_max_size": 1048576
     }
+  },
+  "log": {
+    "level": [
+      { "logger": "deepspeech_server", "level": "DEBUG"}
+    ]
   }
 }
