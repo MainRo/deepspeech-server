@@ -6,7 +6,7 @@ import scipy.io.wavfile as wav
 from rx import Observable
 from cyclotron import Component
 from cyclotron_std.logging import Log
-from deepspeech.model import Model
+from deepspeech import Model
 
 # Number of MFCC features to use
 N_FEATURES = 26
@@ -18,14 +18,11 @@ N_CONTEXT = 9
 BEAM_WIDTH = 500
 
 # The alpha hyperparameter of the CTC decoder. Language Model weight
-LM_WEIGHT = 1.75
-
-# The beta hyperparameter of the CTC decoder. Word insertion weight (penalty)
-WORD_COUNT_WEIGHT = 1.00
+LM_WEIGHT = 1.5
 
 # Valid word insertion weight. This is used to lessen the word insertion
 # penalty when the inserted word is part of the vocabulary
-VALID_WORD_COUNT_WEIGHT = 1.00
+VALID_WORD_COUNT_WEIGHT = 2.25
 
 Sink = namedtuple('Sink', ['speech'])
 Source = namedtuple('Source', ['text', 'log'])
@@ -67,7 +64,7 @@ def make_driver(loop=None):
                 if lm and trie:
                     ds_model.enableDecoderWithLM(
                         alphabet, lm, trie,
-                        LM_WEIGHT, WORD_COUNT_WEIGHT, VALID_WORD_COUNT_WEIGHT)
+                        LM_WEIGHT, VALID_WORD_COUNT_WEIGHT)
                 log("model is ready.")
                 return ds_model
 
