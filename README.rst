@@ -78,12 +78,26 @@ Its structure is the following one:
         "model" :"models/output_graph.pb",
         "alphabet": "models/alphabet.txt",
         "lm": "models/lm.binary",
-        "trie": "models/trie"
+        "trie": "models/trie",
+        "features": {
+          "n_features": 26,
+          "n_context": 9,
+          "beam_width": 500, 
+          "lm_weight": 1.5,
+          "vwc_weight": 2.25 
+        }
       },
       "server": {
         "http": {
+          "host": "0.0.0.0",
+          "port": 8080,
           "request_max_size": 1048576
         }
+      },
+      "log": {
+        "level": [
+          { "logger": "deepspeech_server", "level": "DEBUG"}
+        ]
       }
     }
 
@@ -103,6 +117,9 @@ the DeepSpeech sources).
 
 **trie** is the trie file.
 
+**features** contains the features settings that have been used to train the 
+model. This field can be set to null to keep the default settings.
+
 Section "server" contains configuration of the access part, with on subsection per protocol:
 
 http section configuration
@@ -115,6 +132,13 @@ return a "413: Request Entity Too Large" error.
 **host**  (default value: "0.0.0.0") is the listen address of the http server.
 
 **port** (default value: 8080) is the listening port of the http server.
+
+log section configuration
+-------------------------
+
+The log section can be used to set the log levels of the server. This section
+contains a list of log entries. Each log entry contains the name of a **logger** 
+and its **level**. Both follow the convention of the python logging module.
 
 
 Using the server
