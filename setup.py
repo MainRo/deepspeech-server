@@ -18,13 +18,13 @@ install_requires = [
     'rx>=1.6',
     'scipy>=1.0',
     'cyclotron>=0.5',
-    'cyclotron-aio>=0.4',
+    'cyclotron-aio>=0.5',
     'cyclotron-std>=0.4',
 ]
 
 setup(
     name="deepspeech-server",
-    version='0.6.0',
+    version='1.0.0',
     url='https://github.com/MainRo/deepspeech-server.git',
     license='MPL-2.0',
     description="server for mozilla deepspeech",
