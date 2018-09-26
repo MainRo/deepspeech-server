@@ -95,7 +95,15 @@ def deepspeech_server(sources):
             model=i.deepspeech.model,
             alphabet=i.deepspeech.alphabet,
             lm=i.deepspeech.lm,
-            trie=i.deepspeech.trie))
+            trie=i.deepspeech.trie,
+            features=deepspeech.FeaturesParameters(
+                n_features=i.deepspeech.features.n_features,
+                n_context=i.deepspeech.features.n_context,
+                beam_width=i.deepspeech.features.beam_width,
+                lm_weight=i.deepspeech.features.lm_weight,
+                vwc_weight=i.deepspeech.features.vwc_weight
+            ) if i.deepspeech.features is not None else None
+            ))
     )
     ds = ds_stt.merge(ds_arg)
 

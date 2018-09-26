@@ -3,7 +3,14 @@
     "model" :"models/output_graph.pb",
     "alphabet": "models/alphabet.txt",
     "lm": "models/lm.binary",
-    "trie": "models/trie"
+    "trie": "models/trie",
+    "features": {
+      "n_features": 26,
+      "n_context": 9,
+      "beam_width": 500, 
+      "lm_weight": 1.5,
+      "vwc_weight": 2.25 
+    }
   },
   "server": {
     "http": {

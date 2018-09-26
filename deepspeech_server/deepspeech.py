@@ -8,29 +8,15 @@ from cyclotron import Component
 from cyclotron_std.logging import Log
 from deepspeech import Model
 
-# Number of MFCC features to use
-N_FEATURES = 26
-
-# Size of the context window used for producing timesteps in the input vector
-N_CONTEXT = 9
-
-# Beam width used in the CTC decoder when building candidate transcriptions
-BEAM_WIDTH = 500
-
-# The alpha hyperparameter of the CTC decoder. Language Model weight
-LM_WEIGHT = 1.5
-
-# Valid word insertion weight. This is used to lessen the word insertion
-# penalty when the inserted word is part of the vocabulary
-VALID_WORD_COUNT_WEIGHT = 2.25
 
 Sink = namedtuple('Sink', ['speech'])
 Source = namedtuple('Source', ['text', 'log'])
 
 # Sink events
-Initialize = namedtuple('Initialize', ['model', 'alphabet', 'lm', 'trie'])
-Initialize.__new__.__defaults__ = (None, None, None,)
+FeaturesParameters = namedtuple('FeaturesParameters', ['n_features', 'n_context', 'beam_width', 'lm_weight', 'vwc_weight'])
+FeaturesParameters.__new__.__defaults__ = (26, 9, 500, 1.5, 2.25)
 
+Initialize = namedtuple('Initialize', ['model', 'alphabet', 'lm', 'trie', 'features'])
 SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
 
 # Sourc eevents
@@ -55,16 +41,16 @@ def make_driver(loop=None):
                     message=message,
                 ))
 
-        def setup_model(model_path, alphabet, lm, trie):
-                log("creating model {} {}...".format(model_path, alphabet))
+        def setup_model(model_path, alphabet, lm, trie, features):
+                log("creating model {} {} with features {}...".format(model_path, alphabet, features))
                 ds_model = Model(
                     model_path,
-                    N_FEATURES, N_CONTEXT, alphabet, BEAM_WIDTH)
+                    features.n_features, features.n_context, alphabet, features.beam_width)
 
                 if lm and trie:
                     ds_model.enableDecoderWithLM(
                         alphabet, lm, trie,
-                        LM_WEIGHT, VALID_WORD_COUNT_WEIGHT)
+                        features.lm_weight, features.vwc_weight)
                 log("model is ready.")
                 return ds_model
 
@@ -95,7 +81,7 @@ def make_driver(loop=None):
                 elif type(item) is Initialize:
                     log("initialize: {}".format(item))
                     ds_model = setup_model(
-                        item.model, item.alphabet, item.lm, item.trie)
+                        item.model, item.alphabet, item.lm, item.trie, item.features or FeaturesParameters())
                 else:
                     log("unknown item: {}".format(item), level=logging.CRITICAL)
                     observer.on_error(
