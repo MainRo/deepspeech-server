@@ -1,4 +1,4 @@
-rx>=1.6
+rx>=1.6,<2.0
 scipy>=1.0
 cyclotron>=0.5
 cyclotron-aio>=0.5
