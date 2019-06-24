@@ -1,15 +1,15 @@
 {
   "deepspeech": {
-    "model" :"models/output_graph.pb",
-    "alphabet": "models/alphabet.txt",
-    "lm": "models/lm.binary",
-    "trie": "models/trie",
+    "model" :"output_graph.pbmm",
+    "alphabet": "alphabet.txt",
+    "lm": "lm.binary",
+    "trie": "trie",
     "features": {
       "n_features": 26,
       "n_context": 9,
       "beam_width": 500, 
-      "lm_weight": 1.5,
-      "vwc_weight": 2.25 
+      "lm_alpha": 0.75,
+      "lm_beta": 1.85
     }
   },
   "server": {

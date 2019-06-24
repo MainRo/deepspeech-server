@@ -83,8 +83,8 @@ Its structure is the following one:
           "n_features": 26,
           "n_context": 9,
           "beam_width": 500, 
-          "lm_weight": 1.5,
-          "vwc_weight": 2.25 
+          "lm_alpha": 0.75,
+          "lm_beta": 1.85
         }
       },
       "server": {

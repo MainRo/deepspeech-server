@@ -13,8 +13,8 @@ Sink = namedtuple('Sink', ['speech'])
 Source = namedtuple('Source', ['text', 'log'])
 
 # Sink events
-FeaturesParameters = namedtuple('FeaturesParameters', ['n_features', 'n_context', 'beam_width', 'lm_weight', 'vwc_weight'])
-FeaturesParameters.__new__.__defaults__ = (26, 9, 500, 1.5, 2.25)
+FeaturesParameters = namedtuple('FeaturesParameters', ['n_features', 'n_context', 'beam_width', 'lm_alpha', 'lm_beta'])
+FeaturesParameters.__new__.__defaults__ = (26, 9, 500, 0.75, 1.85)
 
 Initialize = namedtuple('Initialize', ['model', 'alphabet', 'lm', 'trie', 'features'])
 SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
@@ -50,7 +50,7 @@ def make_driver(loop=None):
                 if lm and trie:
                     ds_model.enableDecoderWithLM(
                         alphabet, lm, trie,
-                        features.lm_weight, features.vwc_weight)
+                        features.lm_alpha, features.lm_beta)
                 log("model is ready.")
                 return ds_model
 

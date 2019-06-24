@@ -100,8 +100,8 @@ def deepspeech_server(sources):
                 n_features=i.deepspeech.features.n_features,
                 n_context=i.deepspeech.features.n_context,
                 beam_width=i.deepspeech.features.beam_width,
-                lm_weight=i.deepspeech.features.lm_weight,
-                vwc_weight=i.deepspeech.features.vwc_weight
+                lm_alpha=i.deepspeech.features.lm_alpha,
+                lm_beta=i.deepspeech.features.lm_beta,
             ) if i.deepspeech.features is not None else None
             ))
     )
