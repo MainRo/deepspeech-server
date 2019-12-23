@@ -93,12 +93,9 @@ def deepspeech_server(sources):
         log_ready.combine_latest(config, lambda _, i: i) 
         .map(lambda i: deepspeech.Initialize(
             model=i.deepspeech.model,
-            alphabet=i.deepspeech.alphabet,
             lm=i.deepspeech.lm,
             trie=i.deepspeech.trie,
             features=deepspeech.FeaturesParameters(
-                n_features=i.deepspeech.features.n_features,
-                n_context=i.deepspeech.features.n_context,
                 beam_width=i.deepspeech.features.beam_width,
                 lm_alpha=i.deepspeech.features.lm_alpha,
                 lm_beta=i.deepspeech.features.lm_beta,
