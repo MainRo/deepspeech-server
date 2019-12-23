@@ -13,10 +13,10 @@ Sink = namedtuple('Sink', ['speech'])
 Source = namedtuple('Source', ['text', 'log'])
 
 # Sink events
-FeaturesParameters = namedtuple('FeaturesParameters', ['n_features', 'n_context', 'beam_width', 'lm_alpha', 'lm_beta'])
-FeaturesParameters.__new__.__defaults__ = (26, 9, 500, 0.75, 1.85)
+FeaturesParameters = namedtuple('FeaturesParameters', ['beam_width', 'lm_alpha', 'lm_beta'])
+FeaturesParameters.__new__.__defaults__ = (500, 0.75, 1.85)
 
-Initialize = namedtuple('Initialize', ['model', 'alphabet', 'lm', 'trie', 'features'])
+Initialize = namedtuple('Initialize', ['model', 'lm', 'trie', 'features'])
 SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
 
 # Sourc eevents
@@ -41,15 +41,15 @@ def make_driver(loop=None):
                     message=message,
                 ))
 
-        def setup_model(model_path, alphabet, lm, trie, features):
-                log("creating model {} {} with features {}...".format(model_path, alphabet, features))
+        def setup_model(model_path, lm, trie, features):
+                log("creating model {} with features {}...".format(model_path, features))
                 ds_model = Model(
                     model_path,
-                    features.n_features, features.n_context, alphabet, features.beam_width)
+                    features.beam_width)
 
                 if lm and trie:
                     ds_model.enableDecoderWithLM(
-                        alphabet, lm, trie,
+                        lm, trie,
                         features.lm_alpha, features.lm_beta)
                 log("model is ready.")
                 return ds_model
@@ -61,12 +61,12 @@ def make_driver(loop=None):
                 if type(item) is SpeechToText:
                     if ds_model is not None:
                         try:
-                            fs, audio = wav.read(io.BytesIO(item.data))
+                            _, audio = wav.read(io.BytesIO(item.data))
                             # convert to mono.
                             # todo: move to a component or just a function here
                             if len(audio.shape) > 1:
                                 audio = audio[:, 0]
-                            text = ds_model.stt(audio, fs)
+                            text = ds_model.stt(audio)
                             log("STT result: {}".format(text))
                             observer.on_next(Observable.just(TextResult(
                                 text=text,
@@ -81,7 +81,7 @@ def make_driver(loop=None):
                 elif type(item) is Initialize:
                     log("initialize: {}".format(item))
                     ds_model = setup_model(
-                        item.model, item.alphabet, item.lm, item.trie, item.features or FeaturesParameters())
+                        item.model, item.lm, item.trie, item.features or FeaturesParameters())
                 else:
                     log("unknown item: {}".format(item), level=logging.CRITICAL)
                     observer.on_error(
