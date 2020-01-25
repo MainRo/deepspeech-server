@@ -3,7 +3,7 @@ import logging
 from collections import namedtuple
 import scipy.io.wavfile as wav
 
-from rx import Observable
+import rx
 from cyclotron import Component
 from cyclotron_std.logging import Log
 from deepspeech import Model
@@ -29,7 +29,7 @@ def make_driver(loop=None):
         ds_model = None
         log_observer = None
 
-        def on_log_subscribe(observer):
+        def on_log_subscribe(observer, scheduler):
             nonlocal log_observer
             log_observer = observer
 
@@ -42,19 +42,19 @@ def make_driver(loop=None):
                 ))
 
         def setup_model(model_path, lm, trie, features):
-                log("creating model {} with features {}...".format(model_path, features))
-                ds_model = Model(
-                    model_path,
-                    features.beam_width)
+            log("creating model {} with features {}...".format(model_path, features))
+            ds_model = Model(
+                model_path,
+                features.beam_width)
 
-                if lm and trie:
-                    ds_model.enableDecoderWithLM(
-                        lm, trie,
-                        features.lm_alpha, features.lm_beta)
-                log("model is ready.")
-                return ds_model
+            if lm and trie:
+                ds_model.enableDecoderWithLM(
+                    lm, trie,
+                    features.lm_alpha, features.lm_beta)
+            log("model is ready.")
+            return ds_model
 
-        def subscribe(observer):
+        def subscribe(observer, scheduler):
             def on_deepspeech_request(item):
                 nonlocal ds_model
 
@@ -68,13 +68,13 @@ def make_driver(loop=None):
                                 audio = audio[:, 0]
                             text = ds_model.stt(audio)
                             log("STT result: {}".format(text))
-                            observer.on_next(Observable.just(TextResult(
+                            observer.on_next(rx.just(TextResult(
                                 text=text,
                                 context=item.context,
                             )))
                         except Exception as e:
-                            log("STT error: {}".format(e))
-                            observer.on_next(Observable.throw(TextError(
+                            log("STT error: {}".format(e), level=logging.ERROR)
+                            observer.on_next(rx.throw(TextError(
                                 error=e,
                                 context=item.context,
                             )))
@@ -90,8 +90,8 @@ def make_driver(loop=None):
             sink.speech.subscribe(lambda item: on_deepspeech_request(item))
 
         return Source(
-            text=Observable.create(subscribe),
-            log=Observable.create(on_log_subscribe),
+            text=rx.create(subscribe),
+            log=rx.create(on_log_subscribe),
         )
 
     return Component(call=driver, input=Sink)

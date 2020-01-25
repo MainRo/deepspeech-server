@@ -1,13 +1,17 @@
 import json
 from collections import namedtuple
-from rx import Observable
-from rx.concurrency import AsyncIOScheduler
+from functools import partial
+import asyncio
+import rx
+import rx.operators as ops
+from rx.scheduler import ImmediateScheduler
+from rx.scheduler.eventloop import AsyncIOScheduler
 
 from cyclotron import Component
 from cyclotron.router import make_error_router
 
-from cyclotron_aio.runner import run
-import cyclotron_aio.httpd as httpd
+from cyclotron.asyncio.runner import run
+import cyclotron_aiohttp.httpd as httpd
 import cyclotron_std.sys.argv as argv
 import cyclotron_std.io.file as file
 import cyclotron_std.argparse as argparse
@@ -15,13 +19,13 @@ import cyclotron_std.logging as logging
 
 import deepspeech_server.deepspeech as deepspeech
 
-aio_scheduler = AsyncIOScheduler()
+#from cyclotron.debug import trace_observable
 
 DeepspeechSink = namedtuple('DeepspeechSink', [
-    'logging', 'deepspeech', 'httpd', 'file'
+     'logging', 'file', 'deepspeech', 'httpd'
 ])
 DeepspeechSource = namedtuple('DeepspeechSource', [
-    'deepspeech', 'httpd', 'logging', 'file', 'argv'
+    'deepspeech', 'httpd', 'file', 'argv'
 ])
 DeepspeechDrivers = namedtuple('DeepspeechServerDrivers', [
     'logging', 'deepspeech', 'httpd', 'file', 'argv'
@@ -32,66 +36,64 @@ def parse_config(config_data):
     ''' takes a stream with the content of the configuration file as input
     and returns a (hot) stream of arguments .
     '''
-    config = (
-        config_data
-        .filter(lambda i: i.id == "config")
-        .flat_map(lambda i: i.data)
-        #.do_action(lambda i: print("item: {}".format(i)))
-        .map(lambda i: json.loads(
+    config = config_data.pipe(
+        ops.filter(lambda i: i.id == "config"),
+        ops.flat_map(lambda i: i.data),
+        ops.map(lambda i: json.loads(
             i,
-            object_hook=lambda d: namedtuple('x', d.keys())(*d.values())))
+            object_hook=lambda d: namedtuple('x', d.keys())(*d.values()))),
+        ops.share()
     )
 
-    return config.share()
+    return config
 
 
-def deepspeech_server(sources):
+def parse_arguments(argv):
+    parser = argparse.ArgumentParser("deepspeech server")
+    parser.add_argument(
+        '--config', required=True,
+        help="Path of the server configuration file")
+
+    return argv.pipe(
+        ops.skip(1),
+        argparse.parse(parser),
+    )
+
+
+def deepspeech_server(aio_scheduler, sources):
     argv = sources.argv.argv
     stt = sources.httpd.route
-    stt_response = sources.deepspeech.text.share()
+    stt_response = sources.deepspeech.text
     ds_logs = sources.deepspeech.log
-    config_data = sources.file.response
 
     http_ds_error, route_ds_error = make_error_router()
 
-    args = argparse.argparse(
-        argv=argv.skip(1).subscribe_on(aio_scheduler),
-        parser=Observable.just(argparse.Parser(description="deepspeech server")),
-        arguments=Observable.from_([
-            argparse.ArgumentDef(
-                name='--config', help="Path of the server configuration file")
-        ])
+    args = parse_arguments(argv)
+
+    read_request, read_response = args.pipe(
+        ops.map(lambda i: file.Read(id='config', path=i.value)),
+        file.read(sources.file.response),
+    )
+    read_request = read_request.pipe(
+        ops.subscribe_on(aio_scheduler),
+    )
+    config = parse_config(read_response)
+
+    logs_config = config.pipe(
+        ops.flat_map(lambda i: rx.from_(i.log.level, scheduler=ImmediateScheduler())),
+        ops.map(lambda i: logging.SetLevel(logger=i.logger, level=i.level)),
+    )
+    logs = rx.merge(logs_config, ds_logs)
+
+    ds_stt = stt.pipe(
+        ops.flat_map(lambda i: i.request),
+        ops.map(lambda i: deepspeech.SpeechToText(data=i.data, context=i.context)),
     )
 
-    config_file = (
-        args
-        .filter(lambda i: i.key == 'config')
-        .map(lambda i: file.Read(id='config', path=i.value))
-    )
-    config = parse_config(config_data).subscribe_on(aio_scheduler)
-
-    logs_config = (
-        config
-        .flat_map(lambda i: Observable.from_(i.log.level)
-            .map(lambda i: logging.SetLevel(logger=i.logger, level=i.level))
-            .concat(Observable.just(logging.SetLevelDone()))
-        )
-    )
-    
-    logs = Observable.merge(logs_config, ds_logs)
-    log_ready = sources.logging.response.take(1)
-    
-    ds_stt = (
-        stt
-        .flat_map(lambda i: i.request)
-        .map(lambda i: deepspeech.SpeechToText(data=i.data, context=i.context))
-    )
-
-    ds_arg = (
-        # config is hot, the combine operator allows to keep its last value
-        # until logging is initialized
-        log_ready.combine_latest(config, lambda _, i: i) 
-        .map(lambda i: deepspeech.Initialize(
+    # config is hot, the combine operator allows to keep its last value
+    # until logging is initialized
+    ds_arg = config.pipe(
+        ops.map(lambda i: deepspeech.Initialize(
             model=i.deepspeech.model,
             lm=i.deepspeech.lm,
             trie=i.deepspeech.trie,
@@ -100,13 +102,12 @@ def deepspeech_server(sources):
                 lm_alpha=i.deepspeech.features.lm_alpha,
                 lm_beta=i.deepspeech.features.lm_beta,
             ) if i.deepspeech.features is not None else None
-            ))
+        )),
     )
-    ds = ds_stt.merge(ds_arg)
+    ds = rx.merge(ds_stt, ds_arg)
 
-    http_init = (
-        config
-        .flat_map(lambda i: Observable.from_([
+    http_init = config.pipe(
+        ops.flat_map(lambda i: rx.from_([
             httpd.Initialize(request_max_size=i.server.http.request_max_size),
             httpd.AddRoute(
                 methods=['POST'],
@@ -116,27 +117,26 @@ def deepspeech_server(sources):
             httpd.StartServer(
                 host=i.server.http.host,
                 port=i.server.http.port),
-        ]))
+        ])),
     )
 
-    http_response = (
-        stt_response
-        .let(route_ds_error,
+    http_response = stt_response.pipe(
+        route_ds_error(
             error_map=lambda e: httpd.Response(
                 data="Speech to text error".encode('utf-8'),
                 context=e.args[0].context,
                 status=500
-        ))
-        .map(lambda i: httpd.Response(
+        )),
+        ops.map(lambda i: httpd.Response(
             data=i.text.encode('utf-8'),
             context=i.context,
-        ))
+        )),
     )
 
-    http = Observable.merge(http_init, http_response, http_ds_error)
+    http = rx.merge(http_init, http_response, http_ds_error)
 
     return DeepspeechSink(
-        file=file.Sink(request=config_file),
+        file=file.Sink(request=read_request),
         logging=logging.Sink(request=logs),
         deepspeech=deepspeech.Sink(speech=ds),
         httpd=httpd.Sink(control=http)
@@ -144,15 +144,21 @@ def deepspeech_server(sources):
 
 
 def main():
+    loop = asyncio.get_event_loop()
+    # loop.set_debug(True)
+    aio_scheduler = AsyncIOScheduler(loop=loop)
     run(
-        Component(call=deepspeech_server, input=DeepspeechSource),
+        Component(
+            call=partial(deepspeech_server, aio_scheduler),
+            input=DeepspeechSource),
         DeepspeechDrivers(
             deepspeech=deepspeech.make_driver(),
             httpd=httpd.make_driver(),
             argv=argv.make_driver(),
             logging=logging.make_driver(),
             file=file.make_driver()
-        )
+        ),
+        loop=loop,
     )
 
 
