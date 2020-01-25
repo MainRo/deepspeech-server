@@ -5,3 +5,4 @@ dist
 .tox
 .ropeproject
 config.json
+.vscode
