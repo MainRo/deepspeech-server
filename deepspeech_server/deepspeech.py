@@ -14,9 +14,9 @@ Source = namedtuple('Source', ['text', 'log'])
 
 # Sink events
 FeaturesParameters = namedtuple('FeaturesParameters', ['beam_width', 'lm_alpha', 'lm_beta'])
-FeaturesParameters.__new__.__defaults__ = (500, 0.75, 1.85)
+FeaturesParameters.__new__.__defaults__ = (None, None, None) #They are not (really) required, so we use None.
 
-Initialize = namedtuple('Initialize', ['model', 'lm', 'trie', 'features'])
+Initialize = namedtuple('Initialize', ['model', 'scorer', 'features'])
 SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
 
 # Sourc eevents
@@ -41,16 +41,17 @@ def make_driver(loop=None):
                     message=message,
                 ))
 
-        def setup_model(model_path, lm, trie, features):
+        def setup_model(model_path, scorer, features):
             log("creating model {} with features {}...".format(model_path, features))
-            ds_model = Model(
-                model_path,
-                features.beam_width)
+            ds_model = Model(model_path)
 
-            if lm and trie:
-                ds_model.enableDecoderWithLM(
-                    lm, trie,
-                    features.lm_alpha, features.lm_beta)
+            if features.beam_width:
+                ds_model.setBeamWidth(features.beam_width)
+
+            if scorer:
+                ds_model.enableExternalScorer(scorer)
+                if features.lm_alpha and features.lm_beta:
+                    ds_model.setScorerAlphaBeta(features.lm_alpha, features.lm_beta)
             log("model is ready.")
             return ds_model
 
@@ -81,7 +82,7 @@ def make_driver(loop=None):
                 elif type(item) is Initialize:
                     log("initialize: {}".format(item))
                     ds_model = setup_model(
-                        item.model, item.lm, item.trie, item.features or FeaturesParameters())
+                        item.model, item.scorer or None, item.features or FeaturesParameters())
                 else:
                     log("unknown item: {}".format(item), level=logging.CRITICAL)
                     observer.on_error(

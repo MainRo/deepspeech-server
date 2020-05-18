@@ -95,13 +95,12 @@ def deepspeech_server(aio_scheduler, sources):
     ds_arg = config.pipe(
         ops.map(lambda i: deepspeech.Initialize(
             model=i.deepspeech.model,
-            lm=i.deepspeech.lm,
-            trie=i.deepspeech.trie,
+            scorer=i.deepspeech.scorer if hasattr(i.deepspeech, 'scorer') else None,
             features=deepspeech.FeaturesParameters(
-                beam_width=i.deepspeech.features.beam_width,
-                lm_alpha=i.deepspeech.features.lm_alpha,
-                lm_beta=i.deepspeech.features.lm_beta,
-            ) if i.deepspeech.features is not None else None
+                beam_width=i.deepspeech.features.beam_width if hasattr(i.deepspeech.features, 'beam_width') else None,
+                lm_alpha=i.deepspeech.features.lm_alpha if hasattr(i.deepspeech.features, 'lm_alpha') else None,
+                lm_beta=i.deepspeech.features.lm_beta if hasattr(i.deepspeech.features, 'lm_beta') else None,
+            ) if hasattr(i.deepspeech, 'features') else None
         )),
     )
     ds = rx.merge(ds_stt, ds_arg)
