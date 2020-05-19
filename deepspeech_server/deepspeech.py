@@ -13,10 +13,12 @@ Sink = namedtuple('Sink', ['speech'])
 Source = namedtuple('Source', ['text', 'log'])
 
 # Sink events
-FeaturesParameters = namedtuple('FeaturesParameters', ['beam_width', 'lm_alpha', 'lm_beta'])
-FeaturesParameters.__new__.__defaults__ = (500, 0.75, 1.85)
+Scorer = namedtuple('Scorer', ['scorer', 'lm_alpha', 'lm_beta'])
+Scorer.__new__.__defaults__ = (None, None, None)
 
-Initialize = namedtuple('Initialize', ['model', 'lm', 'trie', 'features'])
+Initialize = namedtuple('Initialize', ['model', 'scorer', 'beam_width'])
+Initialize.__new__.__defaults__ = (None,)
+
 SpeechToText = namedtuple('SpeechToText', ['data', 'context'])
 
 # Sourc eevents
@@ -26,7 +28,7 @@ TextError = namedtuple('TextError', ['error', 'context'])
 
 def make_driver(loop=None):
     def driver(sink):
-        ds_model = None
+        model = None
         log_observer = None
 
         def on_log_subscribe(observer, scheduler):
@@ -41,32 +43,36 @@ def make_driver(loop=None):
                     message=message,
                 ))
 
-        def setup_model(model_path, lm, trie, features):
-            log("creating model {} with features {}...".format(model_path, features))
-            ds_model = Model(
-                model_path,
-                features.beam_width)
+        def setup_model(model_path, scorer, beam_width):
+            log("creating model {} with scorer {}...".format(model_path, scorer))
+            model = Model(model_path)
 
-            if lm and trie:
-                ds_model.enableDecoderWithLM(
-                    lm, trie,
-                    features.lm_alpha, features.lm_beta)
+            if scorer.scorer is not None:
+                model.enableExternalScorer(scorer.scorer)
+                if scorer.lm_alpha is not None and scorer.lm_beta is not None:
+                    if model.setScorerAlphaBeta(scorer.lm_alpha, scorer.lm_beta) != 0:
+                        raise RuntimeError("Unable to set scorer parameters")
+
+            if beam_width is not None:
+                if model.setBeamWidth(beam_width) != 0:
+                    raise RuntimeError("Unable to set beam width")
+
             log("model is ready.")
-            return ds_model
+            return model
 
         def subscribe(observer, scheduler):
             def on_deepspeech_request(item):
-                nonlocal ds_model
+                nonlocal model
 
                 if type(item) is SpeechToText:
-                    if ds_model is not None:
+                    if model is not None:
                         try:
                             _, audio = wav.read(io.BytesIO(item.data))
                             # convert to mono.
                             # todo: move to a component or just a function here
                             if len(audio.shape) > 1:
                                 audio = audio[:, 0]
-                            text = ds_model.stt(audio)
+                            text = model.stt(audio)
                             log("STT result: {}".format(text))
                             observer.on_next(rx.just(TextResult(
                                 text=text,
@@ -80,8 +86,8 @@ def make_driver(loop=None):
                             )))
                 elif type(item) is Initialize:
                     log("initialize: {}".format(item))
-                    ds_model = setup_model(
-                        item.model, item.lm, item.trie, item.features or FeaturesParameters())
+                    model = setup_model(
+                        item.model, item.scorer, item.beam_width)
                 else:
                     log("unknown item: {}".format(item), level=logging.CRITICAL)
                     observer.on_error(
