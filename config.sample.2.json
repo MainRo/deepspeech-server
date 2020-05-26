@@ -1,7 +1,10 @@
 {
   "deepspeech": {
     "model" :"deepspeech-0.7.1-models.pbmm",
-    "scorer" :"deepspeech-0.7.1-models.scorer"
+    "scorer" :"deepspeech-0.7.1-models.scorer",
+    "beam_width": 500,
+    "lm_alpha": 0.931289039105002,
+    "lm_beta": 1.1834137581510284
   },
   "server": {
     "http": {
