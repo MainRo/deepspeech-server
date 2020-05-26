@@ -17,7 +17,7 @@ python_requires='>=3.5'
 install_requires = [
     'rx>=3.0',
     'scipy>=1.0',
-    'cyclotron>=1.0',
+    'cyclotron>=1.2',
     'cyclotron-aiohttp>=1.0',
     'cyclotron-std>=1.0',
 ]
