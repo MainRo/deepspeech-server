@@ -16,13 +16,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   supervisor
 
 # Project dependencies and codebase
-COPY Pipfile Pipfile.lock /app/
+COPY . /app/
 WORKDIR /app
 
 # Install requirements. Since requirements are not system, use `pipenv run` inside the WORKDIR.
 RUN pipenv install --deploy --ignore-pipfile
-
-COPY . /app
 
 # Run service.
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
