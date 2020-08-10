@@ -22,6 +22,9 @@ WORKDIR /app
 # Install requirements. Since requirements are not system, use `pipenv run` inside the WORKDIR.
 RUN pipenv install --deploy --ignore-pipfile
 
+# Get pre-trained model.
+ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.pbmm /app/
+
 # Run service.
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
