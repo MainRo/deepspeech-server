@@ -6,3 +6,6 @@ dist
 .ropeproject
 config.json
 .vscode
+
+# Data directory
+data/

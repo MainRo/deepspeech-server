@@ -23,7 +23,9 @@ WORKDIR /app
 RUN pipenv install --deploy --ignore-pipfile
 
 # Get pre-trained model.
-ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.pbmm /app/
+RUN mkdir -p /app/data/working/
+ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.pbmm /app/data/working/
+ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.scorer /app/data/working/
 
 # Run service.
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf

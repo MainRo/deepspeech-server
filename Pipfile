@@ -11,7 +11,7 @@ cyclotron = ">=1.2"
 cyclotron-aiohttp = ">=1.0"
 cyclotron-std = ">=1.0"
 Rx = ">=3.0"
-deepspeech = "*"
+deepspeech = "==0.8.1"
 deepspeech-server = {editable = true, path = "."}
 
 [requires]
