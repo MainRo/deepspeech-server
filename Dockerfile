@@ -11,12 +11,8 @@ ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.
 # System dependencies
 # ?: Not sure if both libstdc++-*-dev are required
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  vim \
   gcc \
-  libpq-dev \
   python3-dev \
-  libstdc++-7-dev \
-  libstdc++-8-dev \
   pipenv \
   supervisor
 
@@ -28,5 +24,8 @@ WORKDIR /app
 RUN pipenv install --deploy --ignore-pipfile
 
 # Run service.
-ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+EXPOSE 8080
+CMD ["/usr/bin/supervisord", "-c", "/app/docker/supervisord.conf"]
+
+# Add a healthcheck.
+HEALTHCHECK --interval=5m --timeout=3s CMD curl --data-binary=@/app/docker/pronunciation_en_meadows.mp3 -f http://localhost:8080/stt || exit 1
