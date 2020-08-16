@@ -8,7 +8,7 @@ RUN mkdir -p /app/data/working/ /app/data/input/test/
 ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.pbmm /app/data/working/
 ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.scorer /app/data/working/
 ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/audio-0.7.1.tar.gz /app/data/input/test/
-RUN cd /app/data/input/test/ && tar -xzf && rm audio-0.7.1.tar.gz
+RUN cd /app/data/input/test/ && tar -xzf audio-0.7.1.tar.gz && rm audio-0.7.1.tar.gz
 
 # System dependencies
 # ?: Not sure if both libstdc++-*-dev are required
