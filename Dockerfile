@@ -4,9 +4,11 @@ LABEL authors="Mohamed Laradji <mlaradji@protonmail.ch>"
 LABEL maintainer="Mohamed Laradji <mlaradji@protonmail.ch>"
 
 # Get pre-trained model.
-RUN mkdir -p /app/data/working/
+RUN mkdir -p /app/data/working/ /app/data/input/test/
 ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.pbmm /app/data/working/
 ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.scorer /app/data/working/
+ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/audio-0.7.1.tar.gz /app/data/input/test/
+RUN cd /app/data/input/test/ && tar -xzf && rm audio-0.7.1.tar.gz
 
 # System dependencies
 # ?: Not sure if both libstdc++-*-dev are required
@@ -28,4 +30,4 @@ EXPOSE 8080
 CMD ["/usr/bin/supervisord", "-c", "/app/docker/supervisord.conf"]
 
 # Add a healthcheck.
-HEALTHCHECK --interval=5m --timeout=3s CMD curl --data-binary=@/app/docker/pronunciation_en_meadows.mp3 -f http://localhost:8080/stt || exit 1
+HEALTHCHECK --interval=5m --timeout=3s CMD curl --data-binary=@/app/data/input/test/audio/2830-3980-0043.wav -f http://localhost:8080/stt || exit 1
