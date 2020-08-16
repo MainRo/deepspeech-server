@@ -13,6 +13,7 @@ RUN cd /app/data/input/test/ && tar -xzf audio-0.7.1.tar.gz && rm audio-0.7.1.ta
 # System dependencies
 # ?: Not sure if both libstdc++-*-dev are required
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  curl \
   gcc \
   python3-dev \
   pipenv \
@@ -30,4 +31,4 @@ EXPOSE 8080
 CMD ["/usr/bin/supervisord", "-c", "/app/docker/supervisord.conf"]
 
 # Add a healthcheck.
-HEALTHCHECK --interval=5m --timeout=3s CMD curl --data-binary=@/app/data/input/test/audio/2830-3980-0043.wav -f http://localhost:8080/stt || exit 1
+HEALTHCHECK --interval=5m --timeout=3s CMD curl --data-binary @/app/data/input/test/audio/2830-3980-0043.wav -f http://localhost:8080/stt || exit 1
