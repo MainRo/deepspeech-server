@@ -6,6 +6,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+aiohttp = "*"
+yarl = "~=1.5.1"
 scipy = ">=1.0"
 cyclotron = ">=1.2"
 cyclotron-aiohttp = ">=1.0"
@@ -13,7 +15,6 @@ cyclotron-std = ">=1.0"
 Rx = ">=3.0"
 deepspeech = "~=0.7.1"
 deepspeech-server = {editable = true, path = "."}
-aiohttp = "*"
 
 [requires]
 python_version = "3.8"
