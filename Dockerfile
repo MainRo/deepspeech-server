@@ -25,7 +25,8 @@ WORKDIR /app
 
 # Install requirements. Since requirements are not system, use `pipenv run` inside the WORKDIR.
 RUN pipenv install --deploy --ignore-pipfile
-
+RUN apt-get purge gcc python3-dev -y && \
+  apt-get autoremove -y && apt-get clean -y
 # Run service.
 EXPOSE 8080
 CMD ["/usr/bin/supervisord", "-c", "/app/docker/supervisord.conf"]
