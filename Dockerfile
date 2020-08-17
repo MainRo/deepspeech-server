@@ -5,10 +5,10 @@ LABEL maintainer="Mohamed Laradji <mlaradji@protonmail.ch>"
 
 # Get pre-trained model.
 RUN mkdir -p /app/data/working/ /app/data/input/test/
-ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.pbmm /app/data/working/
-ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/deepspeech-0.7.1-models.scorer /app/data/working/
-ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.7.1/audio-0.7.1.tar.gz /app/data/input/test/
-RUN cd /app/data/input/test/ && tar -xzf audio-0.7.1.tar.gz && rm audio-0.7.1.tar.gz
+ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.8.1/deepspeech-0.8.1-models.pbmm /app/data/working/
+ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.8.1/deepspeech-0.8.1-models.scorer /app/data/working/
+ADD https://github.com/mozilla/DeepSpeech/releases/download/v0.8.1/audio-0.8.1.tar.gz /app/data/input/test/
+RUN cd /app/data/input/test/ && tar -xzf audio-0.8.1.tar.gz && rm audio-0.8.1.tar.gz
 
 # System dependencies
 # ?: Not sure if both libstdc++-*-dev are required
@@ -27,6 +27,7 @@ WORKDIR /app
 RUN pipenv install --deploy --ignore-pipfile
 RUN apt-get purge gcc python3-dev -y && \
   apt-get autoremove -y && apt-get clean -y
+
 # Run service.
 EXPOSE 8080
 CMD ["/usr/bin/supervisord", "-c", "/app/docker/supervisord.conf"]

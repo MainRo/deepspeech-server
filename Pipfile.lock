@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "98e40000ab9ff9ee4e4881eeb84a9688304eb163dedb265b23b4bbbdb46ed579"
+            "sha256": "562d34eb56651c88257867f4cfbb57ef70d3bdc0073da9d38dc8e9cde7a8c90e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -80,22 +80,22 @@
         },
         "deepspeech": {
             "hashes": [
-                "sha256:16d1923d9c8910d63f7b4202d66fc3dc731b21f13a2536bcb780f67613bcd30f",
-                "sha256:17dbedf5c7ed4be9d4c6e8231f114183d51300e5349da3991e7f27aaf7526299",
-                "sha256:2c636f4c8297790a15e152a3a18263e5590640f26f6ce6b89d08d8f08113e329",
-                "sha256:3117431a0d990ec87700eaf42f4221f3aab7b9c6d58fedb660f0cca18d2cb5ae",
-                "sha256:5f839b1cf9ab9f6c85e53b04050a2a85352a10d076f4978df60ed526cf373c3d",
-                "sha256:84856c1195660ad292d39af9938bb05d0cad5e4c39a59efbf99aa0e94510a558",
-                "sha256:9277c58d64d113be35465d6d2378ea7b5cd2dd4ba9a47fe9d36cedd0340d514d",
-                "sha256:a19c49852bab2a07caefa0ecc7557f35613cdb0c8ce479181afdb460a0297e05",
-                "sha256:b3b13e5318809bf62327cf0389d2017476b777b0f1d9a1b8eb88b836ca060b46",
-                "sha256:d173e62c7443561d5139a19a181fb941ed9355cb0d83f2bc035ea2bc56534906",
-                "sha256:dfafb056b78d51365095561f27a48eff20677d9bd1d3d65698dca5ad0c57572e",
-                "sha256:ecf603d20baa4f119c3d2d3a4404de80d5f0879402ede32fa65ac3123dd55f79",
-                "sha256:f39a74c16fd693121e31b63f6ca38309647f54cee484a47f2426cc20b4d51fb1"
+                "sha256:0e9a43f8c9e5d2d16354baf936a35cb6286fb4008f19afbdf6807c577de310a5",
+                "sha256:13ec2c4b77a0a26d45a9a28f1e96d789093b046f7ffd6057965c0fcb94444b60",
+                "sha256:3253d420a81ad5c63035ce150ac69ee26ad73da7f92d9ce9fce14d5f7720dce5",
+                "sha256:4637a0f82cd573a320cafbd5979ec2e9439f983f5786267b27157ff846c9c34a",
+                "sha256:574cd427692795ac6588eaf217b114b6e789dc53e66e5486500d6c678bf0db2f",
+                "sha256:6a474764c4539710ce18370695b6d4b990b4e789bc64897caffc1c748796346d",
+                "sha256:850f62c1c0403ea995cb6c1ba6e40e90efe3e9bf8085de225c91e722ab08c832",
+                "sha256:9f28561feeaf2aa74c2b2cb3d3817a23831a026e1214b775911bc3d324cd2485",
+                "sha256:a34d7d3271b29e356905e20cb55c625015dc7f5775b65bc0a067348c8d7f672c",
+                "sha256:c2a4a5765204f42308737ad0039430e257730ce5b22f827a5bccb6260a2f6676",
+                "sha256:c7ba0960b751740109cec2a56afc40b42c676a24a9343050c9c9f2948f246294",
+                "sha256:efcbc90a3d2ea1d3ace1dab4c0d81343c9700bc2bcce628ada8eb8a4d4c0d7de",
+                "sha256:f1fd185232798de8cea88a7ceb27f01ec2844d28cf25bada97b48faa1450056b"
             ],
             "index": "pypi",
-            "version": "==0.7.4"
+            "version": "==0.8.1"
         },
         "deepspeech-server": {
             "editable": true,
