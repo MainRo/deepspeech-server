@@ -1,11 +1,15 @@
+
+from typing import BinaryIO, List
 import io
 import logging
 from collections import namedtuple
-import scipy.io.wavfile as wav
 
-import rx
 from cyclotron import Component
 from cyclotron_std.logging import Log
+import av
+import numpy as np
+import rx
+
 from deepspeech import Model
 
 
@@ -67,11 +71,7 @@ def make_driver(loop=None):
                 if isinstance(item, SpeechToText):
                     if model is not None:
                         try:
-                            _, audio = wav.read(io.BytesIO(item.data))
-                            # convert to mono.
-                            # todo: move to a component or just a function here
-                            if len(audio.shape) > 1:
-                                audio = audio[:, 0]
+                            audio = audio_to_array(io.BytesIO(item.data))
                             text = model.stt(audio)
                             log("STT result: {}".format(text))
                             observer.on_next(rx.just(TextResult(
@@ -101,3 +101,16 @@ def make_driver(loop=None):
         )
 
     return Component(call=driver, input=Sink)
+
+def audio_to_array(file: BinaryIO) -> np.array:
+    """
+    Resample the input audio to the format that DeepSpeech expects.
+
+    :returns: A 1-dimensional NumPy array.
+    """
+    resampler = av.audio.resampler.AudioResampler(format="s16p", layout="mono", rate=16000) # FIXME: For some reason, the resampler needs to be redefined everytime. Otherwise, you'd get errors like "ValueError: Input frame pts 0 != expected 31600; fix or set to None.".
+    audio = av.open(file)
+    frames: List[av.frame.Frame] = []
+    for frame in audio.decode(audio=0): # TODO: What about when there is more than 1 channel?
+        frames.append(resampler.resample(frame).to_ndarray())
+    return np.concatenate(frames, axis=1).flatten()

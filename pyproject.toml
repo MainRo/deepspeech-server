@@ -24,6 +24,8 @@ scipy = ">=1.0"
 cyclotron = ">=1.2"
 cyclotron-aiohttp = ">=1.0"
 cyclotron-std = ">=1.0"
+av = "^8.0.2"
+numpy = "^1.19.1"
 
 [tool.poetry.dev-dependencies]
 
