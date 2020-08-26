@@ -68,7 +68,7 @@ def make_driver(loop=None):
                 if type(item) is SpeechToText:
                     if model is not None:
                         try:
-                            audio = decoding.audio_to_array(io.BytesIO(item.data))
+                            audio = decoding.decode_audio(io.BytesIO(item.data))
                             text = model.stt(audio)
                             log("STT result: {}".format(text))
                             observer.on_next(rx.just(TextResult(

@@ -8,7 +8,7 @@ import logging
 import scipy.io.wavfile as wav
 
 
-def audio_to_array_pyav(file: BinaryIO) -> np.array:
+def decode_audio_pyav(file: BinaryIO) -> np.array:
     """
     Resample the input audio to the format that DeepSpeech expects.
 
@@ -16,19 +16,22 @@ def audio_to_array_pyav(file: BinaryIO) -> np.array:
 
     :returns: A 1-dimensional NumPy array.
     """
-    resampler = av.audio.resampler.AudioResampler(
-        format="s16p", layout="mono", rate=16000
-    )  # FIXME: For some reason, the resampler needs to be redefined everytime. Otherwise, you'd get errors like "ValueError: Input frame pts 0 != expected 31600; fix or set to None.".
+
     audio = av.open(file)
-    frames: List[av.frame.Frame] = []
-    for frame in audio.decode(
-        audio=0
-    ):  # TODO: What about when there is more than 1 channel?
-        frames.append(resampler.resample(frame).to_ndarray())
-    return np.concatenate(frames, axis=1).flatten()
+    if len(audio.streams.audio) > 1:
+        logging.warning("Audio has more than one stream. Only one of them was used.")
+
+    resampler = av.audio.resampler.AudioResampler(
+        format="s16", layout="mono", rate=16000
+    )
+    resampled_frames: List[av.AudioFrame] = []
+    for frame in audio.decode(audio=0):
+        resampled_frames.append(resampler.resample(frame).to_ndarray().flatten())
+
+    return np.concatenate(resampled_frames)
 
 
-def audio_to_array_scipy(file: BinaryIO) -> np.array:
+def decode_audio_scipy(file: BinaryIO) -> np.array:
     """
     Resample the input audio to the format that DeepSpeech expects.
 
@@ -49,9 +52,9 @@ try:
     import numpy as np
 except ImportError as e:
     logging.warning("Either PyAV or NumPy was not found. Falling back to SciPy...")
-    audio_to_array = audio_to_array_scipy
+    decode_audio = decode_audio_scipy
 else:
     # We have PyAV!
-    audio_to_array = audio_to_array_pyav
+    decode_audio = decode_audio_pyav
 
-__all__ = ("audio_to_array",)
+__all__ = ("decode_audio",)
