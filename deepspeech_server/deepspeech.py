@@ -68,7 +68,7 @@ def make_driver(loop=None):
             def on_deepspeech_request(item):
                 nonlocal model
 
-                if isinstance(item, SpeechToText):
+                if type(item) is SpeechToText:
                     if model is not None:
                         try:
                             audio = audio_to_array(io.BytesIO(item.data))
@@ -84,7 +84,7 @@ def make_driver(loop=None):
                                 error=e,
                                 context=item.context,
                             )))
-                elif isinstance(item, Initialize):
+                elif type(item) is Initialize:
                     log("initialize: {}".format(item))
                     model = setup_model(
                         item.model, item.scorer, item.beam_width)
