@@ -6,6 +6,7 @@ from typing import BinaryIO, List
 import logging
 
 import scipy.io.wavfile as wav
+import numpy as np
 
 
 def decode_audio_pyav(file: BinaryIO) -> np.array:
@@ -49,7 +50,6 @@ def decode_audio_scipy(file: BinaryIO) -> np.array:
 
 try:
     import av
-    import numpy as np
 except ImportError as e:
     logging.warning("Either PyAV or NumPy was not found. Falling back to SciPy...")
     decode_audio = decode_audio_scipy
