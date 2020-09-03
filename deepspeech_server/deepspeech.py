@@ -1,12 +1,13 @@
 import io
 import logging
 from collections import namedtuple
-import scipy.io.wavfile as wav
 
 import rx
 from cyclotron import Component
 from cyclotron_std.logging import Log
 from deepspeech import Model
+
+import deepspeech_server.decoding as decoding
 
 
 Sink = namedtuple('Sink', ['speech'])
@@ -67,11 +68,7 @@ def make_driver(loop=None):
                 if type(item) is SpeechToText:
                     if model is not None:
                         try:
-                            _, audio = wav.read(io.BytesIO(item.data))
-                            # convert to mono.
-                            # todo: move to a component or just a function here
-                            if len(audio.shape) > 1:
-                                audio = audio[:, 0]
+                            audio = decoding.decode_audio(io.BytesIO(item.data))
                             text = model.stt(audio)
                             log("STT result: {}".format(text))
                             observer.on_next(rx.just(TextResult(
