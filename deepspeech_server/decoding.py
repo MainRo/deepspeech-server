@@ -2,7 +2,6 @@
 Audio decoding module.
 """
 
-from typing import BinaryIO, List
 import logging
 
 import scipy.io.wavfile as wav
@@ -20,12 +19,12 @@ def decode_audio_pyav(file):
 
     audio = av.open(file)
     if len(audio.streams.audio) > 1:
-        logging.warning("Audio has more than one stream. Only one of them was used.")
+        logging.warning("Audio has more than one stream. Only one of them will be used.")
 
     resampler = av.audio.resampler.AudioResampler(
         format="s16", layout="mono", rate=16000
     )
-    resampled_frames: List[av.AudioFrame] = []
+    resampled_frames = []
     for frame in audio.decode(audio=0):
         resampled_frames.append(resampler.resample(frame).to_ndarray().flatten())
 
@@ -51,10 +50,10 @@ def decode_audio_scipy(file):
 try:
     import av
 except ImportError as e:
-    logging.warning("Either PyAV or NumPy was not found. Falling back to SciPy...")
+    logging.warning("PyAV was not found. Falling back to SciPy...")
     decode_audio = decode_audio_scipy
 else:
-    # We have PyAV!
+    logging.debug("Found PyAV!")
     decode_audio = decode_audio_pyav
 
 __all__ = ("decode_audio",)
