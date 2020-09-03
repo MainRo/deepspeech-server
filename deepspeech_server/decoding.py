@@ -9,7 +9,7 @@ import scipy.io.wavfile as wav
 import numpy as np
 
 
-def decode_audio_pyav(file: BinaryIO) -> np.array:
+def decode_audio_pyav(file):
     """
     Resample the input audio to the format that DeepSpeech expects.
 
@@ -32,7 +32,7 @@ def decode_audio_pyav(file: BinaryIO) -> np.array:
     return np.concatenate(resampled_frames)
 
 
-def decode_audio_scipy(file: BinaryIO) -> np.array:
+def decode_audio_scipy(file):
     """
     Resample the input audio to the format that DeepSpeech expects.
 
