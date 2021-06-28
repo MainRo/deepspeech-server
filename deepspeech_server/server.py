@@ -19,6 +19,8 @@ import cyclotron_std.logging as logging
 
 import deepspeech_server.deepspeech as deepspeech
 
+from multidict import MultiDict
+
 #from cyclotron.debug import trace_observable
 
 DeepspeechSink = namedtuple('DeepspeechSink', [
@@ -112,6 +114,7 @@ def deepspeech_server(aio_scheduler, sources):
                 methods=['POST'],
                 path='/stt',
                 id='stt',
+                headers=MultiDict([('Content-Type', 'text/plain')]),
             ),
             httpd.StartServer(
                 host=i.server.http.host,
