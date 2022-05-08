@@ -5,7 +5,7 @@ from collections import namedtuple
 import rx
 from cyclotron import Component
 from cyclotron_std.logging import Log
-from deepspeech import Model
+from stt import Model
 
 import deepspeech_server.decoding as decoding
 
@@ -62,7 +62,7 @@ def make_driver(loop=None):
             return model
 
         def subscribe(observer, scheduler):
-            def on_deepspeech_request(item):
+            def on_coqui_request(item):
                 nonlocal model
 
                 if type(item) is SpeechToText:
@@ -90,7 +90,7 @@ def make_driver(loop=None):
                     observer.on_error(
                         "Unknown item type: {}".format(type(item)))
 
-            sink.speech.subscribe(lambda item: on_deepspeech_request(item))
+            sink.speech.subscribe(lambda item: on_coqui_request(item))
 
         return Source(
             text=rx.create(subscribe),
