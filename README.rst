@@ -11,16 +11,22 @@ DeepSpeech Server
 Key Features
 ============
 
-This is an http server that can be used to test the Mozilla DeepSpeech project.
-You need an environment with DeepSpeech and a model to run this server.
+This is an http server that can be used to test the Mozilla DeepSpeech project
+or its successor, the Coqui STT project. You need an environment with
+DeepSpeech or Coqui to run this server.
 
-This code uses the DeepSpeech 0.7 APIs.
+This code uses the DeepSpeech 0.7 APIs and Coqui STT 1.0 APIs.
 
 Installation
 =============
 
-You first need to install deepspeech. Depending on your system you can use the
-CPU package:
+Before starting, you'll need to choose an engine.
+
+Option A: Installing DeepSpeech
+-------------------------------
+
+First, install `deepspeech`. Depending on your system you can use the CPU
+package:
 
 .. code-block:: console
 
@@ -31,6 +37,19 @@ Or the GPU package:
 .. code-block:: console
 
     pip3 install deepspeech-gpu
+
+Option B: Installing Coqui STT
+------------------------------
+
+First, install `stt` (published by Coqui). There is only one package available,
+but not to worry - it supports both CPU-bound and GPU environments:
+
+.. code-block:: console
+
+   pip3 install stt
+
+Installing deepspeech-server
+----------------------------
 
 Then you can install the deepspeech server:
 
@@ -53,18 +72,62 @@ Starting the server
 
     deepspeech-server --config config.json
 
+What is a STT model?
+--------------------
+
+The quality of the speech-to-text engine depends heavily on which models it
+loads at runtime. Think of them as a sort of pattern that controls how the
+engine works.
+
+Coqui and deepspeech models both run on tensorflow, but the way they are built
+means that the models for one cannot be used for the other. Note that the files
+used for vocabulary (the so-called scorers) ARE compatible. Refer to the below
+table:
+
+.. csv-table:: Supported Formats
+   :header: "Name", "Extension", "Engine Support"
+
+   "Protobuf", "`.pb`", "Deepspeech"
+   "Memory-mapped Protobuf", "`.pbmm`", "DeepSpeech"
+   "TensorFlow Lite", "`.tflite`", "DeepSpeech, Coqui STT"
+   "Scorer", "`.scorer`", "DeepSpeech, Coqui STT"
+
+How to use a specific STT model
+-------------------------------
+
 You can use deepspeech without training a model yourself. Pre-trained
 models are provided by Mozilla in the release page of the project (See the
 assets section of the release note):
 
 https://github.com/mozilla/DeepSpeech/releases
 
-Once your downloaded a pre-trained model, you can untar it and directly use the
-sample configuration file:
+You can also use coqui without training a model. Pre-trained models are on
+offer at the Coqui Model Zoo (Make sure the STT Models tab is selected):
+
+https://coqui.ai/models
+
+Once you've downloaded a pre-trained model, make a copy of the sample
+configuration file. Edit the `"model"` and `"scorer"` fields in your new file
+for the engine you want to use so that they match the downloaded files:
 
 .. code-block:: console
 
     cp config.sample.json config.json
+    $EDITOR config.json
+
+Here's what to change if you want to use the models from deepspeech 0.9.3:
+
+.. code-block:: json
+
+     "deepspeech": {
+       "model" :"/path/to/my/downloaded/models/deepspeech-0.9.3-models.pbmm",
+       "scorer" :"/path/to/my/downloaded/models/deepspeech-0.9.3-models.scorer"
+     },
+
+Lastly, start the server in the usual way:
+
+.. code-block:: console
+
     deepspeech-server --config config.json
 
 Server configuration
