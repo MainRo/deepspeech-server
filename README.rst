@@ -76,6 +76,11 @@ Its structure is the following one:
 .. code-block:: json
 
     {
+      "coqui": {
+        "model" :"coqui-1.0.tflite",
+        "scorer" :"huge-vocabulary.scorer",
+        "beam_width": 500
+      },
       "deepspeech": {
         "model" :"deepspeech-0.7.1-models.pbmm",
         "scorer" :"deepspeech-0.7.1-models.scorer",
@@ -98,6 +103,17 @@ Its structure is the following one:
     }
 
 The configuration file contains several sections and sub-sections.
+
+coqui section configuration
+---------------------------
+
+Section "coqui" contains configuration of the coqui-stt engine:
+
+**model**: The model that was trained by coqui. Must be a tflite (TensorFlow Lite) file.
+
+**scorer**: [Optional] The scorer file. Use this to tune the STT to understand certain phrases better
+
+**beam_width**: [Optional] The size of the beam search. Corresponds directly to how long decoding takes
 
 deepspeech section configuration
 --------------------------------
