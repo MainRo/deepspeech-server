@@ -30,7 +30,7 @@ setup(
     description="server for mozilla deepspeech",
     long_description=description,
     author='Romain Picard',
-    author_email='romain.picard@softathome.com',
+    author_email='romain.picard@oakbits.com',
     packages=find_packages(),
     install_requires=install_requires,
     include_package_data=True,
@@ -42,5 +42,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Scientific/Engineering :: Artificial Intelligence'
     ],
-    scripts=['script/deepspeech-server'],
+    entry_points={
+        'console_scripts': ['deepspeech-server=deepspeech_server.cli:main'],
+    }
 )

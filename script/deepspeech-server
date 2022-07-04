@@ -1,5 +1,0 @@
-#!/usr/bin/env PYTHONUNBUFFERED="1" python
-
-from deepspeech_server.server import main;
-
-main()
