@@ -26,7 +26,13 @@ def decode_audio_pyav(file):
     )
     resampled_frames = []
     for frame in audio.decode(audio=0):
-        resampled_frames.append(resampler.resample(frame).to_ndarray().flatten())
+        # As of PyAV 9.0, one input frame may be resampled to multiple outputs.
+        # Convert each into a numpy ndarray...
+        iterable_frames = map(lambda f:f.to_ndarray(), resampler.resample(frame))
+        # ...then flatten each of those arrays down to 1D
+        flat_frames = list(map(lambda f:f.flatten(), iterable_frames))
+        # Add all of the resampled frames to our output list
+        resampled_frames.extend(flat_frames)
 
     return np.concatenate(resampled_frames)
 

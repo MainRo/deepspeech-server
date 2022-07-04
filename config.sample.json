@@ -1,4 +1,9 @@
 {
+  "coqui": {
+    "model" :"coqui-1.0.tflite",
+    "scorer" :"huge-vocabulary.scorer",
+    "beam_width": 500
+  },
   "deepspeech": {
     "model" :"deepspeech-0.7.1-models.pbmm",
     "scorer" :"deepspeech-0.7.1-models.scorer"

@@ -17,7 +17,7 @@ import cyclotron_std.io.file as file
 import cyclotron_std.argparse as argparse
 import cyclotron_std.logging as logging
 
-import deepspeech_server.deepspeech as deepspeech
+import deepspeech_server.coqui as coqui
 
 from multidict import MultiDict
 
@@ -89,20 +89,20 @@ def deepspeech_server(aio_scheduler, sources):
 
     ds_stt = stt.pipe(
         ops.flat_map(lambda i: i.request),
-        ops.map(lambda i: deepspeech.SpeechToText(data=i.data, context=i.context)),
+        ops.map(lambda i: coqui.SpeechToText(data=i.data, context=i.context)),
     )
 
     # config is hot, the combine operator allows to keep its last value
     # until logging is initialized
     ds_arg = config.pipe(
-        ops.map(lambda i: deepspeech.Initialize(
-            model=i.deepspeech.model,
-            scorer=deepspeech.Scorer(
-                scorer=getattr(i.deepspeech, 'scorer', None),
-                lm_alpha=getattr(i.deepspeech, 'lm_alpha', None),
-                lm_beta=getattr(i.deepspeech, 'lm_beta', None),
+        ops.map(lambda i: coqui.Initialize(
+            model=i.coqui.model,
+            scorer=coqui.Scorer(
+                scorer=getattr(i.coqui, 'scorer', None),
+                lm_alpha=getattr(i.coqui, 'lm_alpha', None),
+                lm_beta=getattr(i.coqui, 'lm_beta', None),
             ),
-            beam_width=getattr(i.deepspeech, 'beam_width', None),
+            beam_width=getattr(i.coqui, 'beam_width', None),
         )),
     )
     ds = rx.merge(ds_stt, ds_arg)
@@ -140,7 +140,7 @@ def deepspeech_server(aio_scheduler, sources):
     return DeepspeechSink(
         file=file.Sink(request=read_request),
         logging=logging.Sink(request=logs),
-        deepspeech=deepspeech.Sink(speech=ds),
+        deepspeech=coqui.Sink(speech=ds),
         httpd=httpd.Sink(control=http)
     )
 
@@ -154,7 +154,7 @@ def main():
             call=partial(deepspeech_server, aio_scheduler),
             input=DeepspeechSource),
         DeepspeechDrivers(
-            deepspeech=deepspeech.make_driver(),
+            deepspeech=coqui.make_driver(),
             httpd=httpd.make_driver(),
             argv=argv.make_driver(),
             logging=logging.make_driver(),
