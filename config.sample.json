@@ -4,10 +4,6 @@
     "scorer" :"huge-vocabulary.scorer",
     "beam_width": 500
   },
-  "deepspeech": {
-    "model" :"deepspeech-0.7.1-models.pbmm",
-    "scorer" :"deepspeech-0.7.1-models.scorer"
-  },
   "server": {
     "http": {
       "host": "0.0.0.0",

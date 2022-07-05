@@ -24,13 +24,13 @@ from multidict import MultiDict
 #from cyclotron.debug import trace_observable
 
 DeepspeechSink = namedtuple('DeepspeechSink', [
-     'logging', 'file', 'deepspeech', 'httpd'
+     'logging', 'file', 'stt', 'httpd'
 ])
 DeepspeechSource = namedtuple('DeepspeechSource', [
-    'deepspeech', 'httpd', 'file', 'argv'
+    'stt', 'httpd', 'file', 'argv'
 ])
 DeepspeechDrivers = namedtuple('DeepspeechServerDrivers', [
-    'logging', 'deepspeech', 'httpd', 'file', 'argv'
+    'logging', 'stt', 'httpd', 'file', 'argv'
 ])
 
 
@@ -65,8 +65,8 @@ def parse_arguments(argv):
 def deepspeech_server(aio_scheduler, sources):
     argv = sources.argv.argv
     stt = sources.httpd.route
-    stt_response = sources.deepspeech.text
-    ds_logs = sources.deepspeech.log
+    stt_response = sources.stt.text
+    ds_logs = sources.stt.log
 
     http_ds_error, route_ds_error = make_error_router()
 
@@ -140,7 +140,7 @@ def deepspeech_server(aio_scheduler, sources):
     return DeepspeechSink(
         file=file.Sink(request=read_request),
         logging=logging.Sink(request=logs),
-        deepspeech=coqui.Sink(speech=ds),
+        stt=coqui.Sink(speech=ds),
         httpd=httpd.Sink(control=http)
     )
 
@@ -154,7 +154,7 @@ def main():
             call=partial(deepspeech_server, aio_scheduler),
             input=DeepspeechSource),
         DeepspeechDrivers(
-            deepspeech=coqui.make_driver(),
+            stt=coqui.make_driver(),
             httpd=httpd.make_driver(),
             argv=argv.make_driver(),
             logging=logging.make_driver(),

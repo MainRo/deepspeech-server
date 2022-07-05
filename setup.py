@@ -20,6 +20,7 @@ install_requires = [
     'cyclotron>=1.2',
     'cyclotron-aiohttp>=1.0',
     'cyclotron-std>=1.0',
+    'stt>=1.3',
 ]
 
 setup(
