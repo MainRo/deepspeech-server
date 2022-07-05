@@ -1,5 +1,6 @@
 # Custom config file
 config.json
+asset
 
 # IDE's
 .vscode
