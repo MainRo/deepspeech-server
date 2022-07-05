@@ -33,7 +33,7 @@ You can also install deepspeech server from sources:
 
     python3 setup.py install
 
-Note that python 3.5 is the minimum version required to run the server.
+Note that python 3.6 is the minimum version required to run the server.
 
 Starting the server
 ====================

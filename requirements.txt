@@ -4,5 +4,5 @@ cyclotron>=1.2
 cyclotron-aiohttp>=1.0
 cyclotron-std>=1.0
 av==9.2.0
-numpy>=1.20
+numpy>=1.19
 stt>=1.3
