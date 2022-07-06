@@ -6,3 +6,5 @@ cyclotron-std>=1.0
 av==9.2.0
 numpy>=1.19
 stt>=1.3
+pydantic>=1.9
+PyYAML>=6.0

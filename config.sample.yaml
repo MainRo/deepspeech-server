@@ -1,0 +1,13 @@
+coqui:
+  model: coqui-1.0.tflite
+  scorer: huge-vocabulary.scorer
+  beam_width: 500
+server:
+  http:
+    host: "0.0.0.0"
+    port: 8080
+    request_max_size: 1048576
+log:
+  level:
+    - logger: deepspeech_server
+      level: DEBUG

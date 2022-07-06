@@ -109,9 +109,13 @@ Section "coqui" contains configuration of the coqui-stt engine:
 
 **model**: The model that was trained by coqui. Must be a tflite (TensorFlow Lite) file.
 
-**scorer**: [Optional] The scorer file. Use this to tune the STT to understand certain phrases better
+**scorer**: [Optional] The scorer file. Use this to tune the STT to understand certain phrases better.
 
-**beam_width**: [Optional] The size of the beam search. Corresponds directly to how long decoding takes
+**lm_aplha**: [Optional] alpha hyperparameter for the scorer.
+
+**lm_beta**: [Optional] beta hyperparameter for the scorer.
+
+**beam_width**: [Optional] The size of the beam search. Corresponds directly to how long decoding takes.
 
 http section configuration
 --------------------------

@@ -21,6 +21,8 @@ install_requires = [
     'cyclotron-aiohttp>=1.0',
     'cyclotron-std>=1.0',
     'stt>=1.3',
+    'pydantic>=1.9',
+    'PyYAML>=6.0',
 ]
 
 setup(

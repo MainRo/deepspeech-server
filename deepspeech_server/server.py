@@ -18,6 +18,7 @@ import cyclotron_std.argparse as argparse
 import cyclotron_std.logging as logging
 
 import deepspeech_server.coqui as coqui
+from .config import parse_config
 
 from multidict import MultiDict
 
@@ -32,22 +33,6 @@ DeepspeechSource = namedtuple('DeepspeechSource', [
 DeepspeechDrivers = namedtuple('DeepspeechServerDrivers', [
     'logging', 'stt', 'httpd', 'file', 'argv'
 ])
-
-
-def parse_config(config_data):
-    ''' takes a stream with the content of the configuration file as input
-    and returns a (hot) stream of arguments .
-    '''
-    config = config_data.pipe(
-        ops.filter(lambda i: i.id == "config"),
-        ops.flat_map(lambda i: i.data),
-        ops.map(lambda i: json.loads(
-            i,
-            object_hook=lambda d: namedtuple('x', d.keys())(*d.values()))),
-        ops.share()
-    )
-
-    return config
 
 
 def parse_arguments(argv):
