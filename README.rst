@@ -40,7 +40,7 @@ Starting the server
 
 .. code-block:: console
 
-    deepspeech-server --config config.json
+    deepspeech-server --config config.yaml
 
 What is a STT model?
 --------------------
@@ -63,42 +63,35 @@ for the engine you want to use so that they match the downloaded files:
 
 .. code-block:: console
 
-    cp config.sample.json config.json
-    $EDITOR config.json
+    cp config.sample.yaml config.yaml
+    $EDITOR config.yaml
 
 Lastly, start the server:
 
 .. code-block:: console
 
-    deepspeech-server --config config.json
+    deepspeech-server --config config.yaml
 
 Server configuration
 =====================
 
-The configuration is done with a json file, provided with the "--config" argument.
+The configuration is done with a yaml file, provided with the "--config" argument.
 Its structure is the following one:
 
-.. code-block:: json
-
-    {
-      "coqui": {
-        "model" :"coqui-1.0.tflite",
-        "scorer" :"huge-vocabulary.scorer",
-        "beam_width": 500
-      },
-      "server": {
-        "http": {
-          "host": "0.0.0.0",
-          "port": 8080,
-          "request_max_size": 1048576
-        }
-      },
-      "log": {
-        "level": [
-          { "logger": "deepspeech_server", "level": "DEBUG"}
-        ]
-      }
-    }
+.. code-block:: yaml
+    coqui:
+      model: coqui-1.0.tflite
+      scorer: huge-vocabulary.scorer
+      beam_width: 500
+    server:
+      http:
+        host: "0.0.0.0"
+        port: 8080
+        request_max_size: 1048576
+    log:
+      level:
+        - logger: deepspeech_server
+          level: DEBUG
 
 The configuration file contains several sections and sub-sections.
 
@@ -124,9 +117,9 @@ http section configuration
 size allowed by the server. A received payload size above this threshold will
 return a "413: Request Entity Too Large" error.
 
-**host**  (default value: "0.0.0.0") is the listen address of the http server.
+**host**  The listen address of the http server.
 
-**port** (default value: 8080) is the listening port of the http server.
+**port** The listening port of the http server.
 
 log section configuration
 -------------------------
