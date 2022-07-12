@@ -27,7 +27,7 @@ install_requires = [
 
 setup(
     name="deepspeech-server",
-    version='2.3.0-dev',
+    version='3.0.0',
     url='https://github.com/MainRo/deepspeech-server.git',
     license='MPL-2.0',
     description="server for mozilla deepspeech",
