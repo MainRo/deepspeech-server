@@ -104,7 +104,7 @@ Section "coqui" contains configuration of the coqui-stt engine:
 
 **scorer**: [Optional] The scorer file. Use this to tune the STT to understand certain phrases better.
 
-**lm_aplha**: [Optional] alpha hyperparameter for the scorer.
+**lm_alpha**: [Optional] alpha hyperparameter for the scorer.
 
 **lm_beta**: [Optional] beta hyperparameter for the scorer.
 
