@@ -32,6 +32,7 @@ setup(
     license='MPL-2.0',
     description="server for mozilla deepspeech",
     long_description=description,
+    long_description_content_type='text/x-rst',
     author='Romain Picard',
     author_email='romain.picard@oakbits.com',
     packages=find_packages(),

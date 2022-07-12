@@ -79,6 +79,7 @@ The configuration is done with a yaml file, provided with the "--config" argumen
 Its structure is the following one:
 
 .. code-block:: yaml
+
     coqui:
       model: coqui-1.0.tflite
       scorer: huge-vocabulary.scorer
